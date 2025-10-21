@@ -59,6 +59,7 @@ import java.util.concurrent.TimeUnit
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import android.graphics.Bitmap
 import android.widget.ImageView
+import android.widget.SearchView
 import org.o7planning.myapplication.admin.ApiService
 import org.o7planning.myapplication.admin.PaymentRequest
 import org.o7planning.myapplication.admin.PaymentResponse
@@ -73,7 +74,8 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
     private lateinit var storeValueEventListener: ValueEventListener
 
-    private lateinit var listStore: ArrayList<dataStore>
+    private lateinit var originalStoreList: ArrayList<dataStore>
+    private lateinit var displayedStoreList: ArrayList<dataStore>
     private lateinit var listBooking: ArrayList<dataTableManagement>
     private lateinit var listVoucher: ArrayList<dataVoucher>
 
@@ -123,7 +125,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             }
         }
     }
-    // --- KẾT THÚC PHẦN MỚI ---
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -142,7 +143,8 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         dbRefOverview = FirebaseDatabase.getInstance().getReference("dataOverview")
         dbRefVoucher = FirebaseDatabase.getInstance().getReference("dataVoucher")
 
-        listStore = arrayListOf()
+        originalStoreList = arrayListOf()
+        displayedStoreList = arrayListOf()
         listBooking = arrayListOf()
         listVoucher = arrayListOf()
 
@@ -161,13 +163,10 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         boxSelectOutstandingCLB()
         setupVoucherInteraction()
 
-        // --- MỚI: Khởi tạo client và gán sự kiện cho nút tìm gần đây ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        // Giả sử bạn có một ImageButton với id 'btnFindNearbyClubs' trong layout
-        binding.iconLocation.setOnClickListener {
+        binding.btnFindNearby.setOnClickListener {
             requestLocationAndSort()
         }
-        // --- KẾT THÚC PHẦN MỚI ---
 
         binding.btnConfirmBooking.setOnClickListener {
             if (dataStartTime == null || dataEndTime == null || dataDate == null || dataPeople == null || dataLocation == null) {
@@ -268,19 +267,32 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         alertDialog.show()
     }
 
+    private fun generateVietQrOrderId(): String {
+        val prefix = "BIDA" // Bạn có thể đổi tiền tố này
+        val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        val randomSuffix = (1..8)
+            .map { allowedChars.random() }
+            .joinToString("")
+        return "${prefix}${randomSuffix}"
+    }
+
     private fun executeVietQrPayment(dialog: AlertDialog) {
-        val orderId = "VIETQR_${userId}_${System.currentTimeMillis()}"
-        // Lưu đơn hàng với trạng thái chờ
+        val orderId = generateVietQrOrderId()
+        if (orderId == null) {
+            Toast.makeText(requireContext(), "Lỗi tạo mã đơn hàng", Toast.LENGTH_SHORT).show()
+            dialog.findViewById<Button>(R.id.btnPay)?.isEnabled = true
+            dialog.findViewById<Button>(R.id.btnCancel)?.isEnabled = true
+            return
+        }
         addDataOrder(orderId, "Chờ thanh toán VietQR", "Đã xác nhận")
 
         dialog.findViewById<Button>(R.id.btnPay)?.isEnabled = false
         dialog.findViewById<Button>(R.id.btnCancel)?.isEnabled = false
         Toast.makeText(requireContext(), "Đang tạo mã VietQR...", Toast.LENGTH_SHORT).show()
 
-        // --- GỌI API SERVER ĐỂ LẤY CHUỖI QR ---
-        val okHttpClient = OkHttpClient.Builder().build() // Không cần timeout dài ở đây
+        val okHttpClient = OkHttpClient.Builder().build()
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://api-datn-2025.onrender.com") // URL server của bạn
+            .baseUrl("https://api-datn-2025.onrender.com")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -291,14 +303,17 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
         apiService.createVietQrData(request).enqueue(object : Callback<VietQrResponse> {
             override fun onResponse(call: Call<VietQrResponse>, response: Response<VietQrResponse>) {
-                val qrDataString = response.body()!!.qrDataString
+                // 1. KIỂM TRA xem có thành công và có body không
                 if (response.isSuccessful && response.body() != null) {
-                    Log.d("VietQR_API", "Nhận được chuỗi VietQR: $qrDataString")
+                    // 2. CHỈ LẤY dữ liệu NẾU thành công
+                    val qrDataString = response.body()!!.qrDataString
 
+                    Log.d("VietQR_API", "Nhận được chuỗi VietQR: $qrDataString")
                     showVietQrDialog(qrDataString, orderId, totalPrice ?: 0.0)
                     dialog.dismiss()
                 } else {
-                    Log.e("VietQR_API", "Lỗi server lấy chuỗi VietQR: ${response.code()}")
+                    // 3. Xử lý lỗi (nếu response không thành công, body sẽ là null)
+                    Log.e("VietQR_API", "Lỗi server lấy chuỗi VietQR: ${response.code()} - ${response.errorBody()?.string()}")
                     Toast.makeText(requireContext(), "Server lỗi khi tạo mã VietQR.", Toast.LENGTH_SHORT).show()
                     // Nên xóa đơn hàng tạm đi nếu lỗi
                     dbRefBooktable.child(orderId).removeValue()
@@ -318,7 +333,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         })
     }
 
-    // (Trong class FragmentBooktable)
     private fun showVietQrDialog(qrDataString: String, orderId: String, amount: Double) {
         val builder = AlertDialog.Builder(requireContext())
         val dialogView = layoutInflater.inflate(R.layout.dialog_vietqr_payment, null)
@@ -330,12 +344,10 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         val tvAmount = dialogView.findViewById<TextView>(R.id.tvVietQrAmount)
         val btnClose = dialogView.findViewById<Button>(R.id.btnVietQrClose)
         val tvStatus = dialogView.findViewById<TextView>(R.id.tvVietQrPaymentStatus)
-        // (Thêm các TextView để hiển thị tên NH, STK nếu cần)
 
         tvAmount.text = String.format("%.0f VND", amount)
         tvStatus.text = "Quét mã để thanh toán"
 
-        // --- TẠO ẢNH QR TỪ CHUỖI ---
         try {
             val barcodeEncoder = BarcodeEncoder()
             // Tạo Bitmap từ chuỗi dữ liệu server trả về
@@ -385,7 +397,14 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     }
 
     private fun executeVnPayPayment(dialog: AlertDialog) {
-        val orderId = "BIDA_${userId}_${System.currentTimeMillis()}"
+
+        val orderId = dbRefBooktable.push().key
+        if (orderId == null) {
+            Toast.makeText(requireContext(), "Lỗi tạo mã đơn hàng", Toast.LENGTH_SHORT).show()
+            dialog.findViewById<Button>(R.id.btnPay)?.isEnabled = true
+            dialog.findViewById<Button>(R.id.btnCancel)?.isEnabled = true
+            return
+        }
         addDataOrder(orderId, "Chờ thanh toán VNPay", "Đã xác nhận")
 
         dialog.findViewById<Button>(R.id.btnPay)?.isEnabled = false
@@ -469,22 +488,17 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             Toast.makeText(requireContext(), "Lỗi tạo mã QR", Toast.LENGTH_SHORT).show()
         }
 
-        // --- Tự động lắng nghe trạng thái thanh toán ---
         val paymentStatusListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // Lắng nghe đúng trường "paymentStatus" mà backend cập nhật
                 val paymentStatus = snapshot.child("paymentStatus").getValue(String::class.java)
 
-                // Sử dụng các giá trị "SUCCESS" và "FAILED" đồng bộ với backend
                 if (paymentStatus == "Đã thanh toán") {
                     tvStatus.text = "Thanh toán thành công!"
                     tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
                     btnClose.text = "Hoàn tất"
 
-                    // Xóa listener đi sau khi đã có kết quả để tránh xử lý thừa
                     dbRefBooktable.child(orderId).removeEventListener(this)
 
-                    // Tự động đóng dialog và chuyển về trang chủ sau 3 giây
                     android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                         qrDialog.dismiss()
                         findNavController().navigate(R.id.fragment_home)
@@ -493,7 +507,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                     tvStatus.text = "Thanh toán thất bại!"
                     tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
                     btnClose.text = "Thử lại"
-                    // Xóa listener đi sau khi đã có kết quả
                     dbRefBooktable.child(orderId).removeEventListener(this)
                 }
             }
@@ -719,7 +732,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     }
 
     private fun boxSelectCLB() {
-        storeAdapter = RvClbBia(listStore, this)
+        storeAdapter = RvClbBia(displayedStoreList, this)
         binding.rvClbBia.adapter = storeAdapter.apply {
             onClickItem = { item, pos ->
                 dialogViewStore(item)
@@ -734,13 +747,15 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
         storeValueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                listStore.clear()
-                // Đặt lại khoảng cách về null để hiển thị bình thường
-                listStore.forEach { it.distance = null }
+                originalStoreList.clear()
+                displayedStoreList.clear()
                 if (snapshot.exists()) {
                     for (storeSnap in snapshot.children) {
                         val storeData = storeSnap.getValue(dataStore::class.java)
-                        storeData?.let { listStore.add(it) }
+                        storeData?.let {
+                            originalStoreList.add(it)
+                            displayedStoreList.add(it)
+                        }
                     }
                 }
                 storeAdapter.notifyDataSetChanged()
@@ -788,7 +803,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         binding.txtSelectClb.text = "Quán: $name \n Cơ sở: $address"
         dataLocation = address
         loadTableCountForSelectedStore(id)
-        val selectedStore = listStore.find { it.storeId == id }
+        val selectedStore = originalStoreList.find { it.storeId == id }
         priceTable = selectedStore?.priceTable
 
         updatePrice()
@@ -869,9 +884,38 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
         } else {
             binding.boxClbBia.visibility = View.VISIBLE
+            binding.searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    performSearch(query.orEmpty())
+                    binding.searchView.clearFocus()
+                    return true
+                }
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    performSearch(newText.orEmpty())
+                    return true
+                }
+            })
             boxSelectCLB()
         }
         updatePrice()
+    }
+
+    private fun performSearch(query: String) {
+        displayedStoreList.clear()
+        if (query.isEmpty()) {
+            displayedStoreList.addAll(originalStoreList)
+            displayedStoreList.forEach { it.distance = null }
+        } else {
+            val normalizedQuery = query.toLowerCase(Locale.getDefault()).trim()
+            val filteredList = originalStoreList.filter { store ->
+                val nameMatches = store.name?.toLowerCase(Locale.getDefault())?.contains(normalizedQuery) == true
+                val addressMatches = store.address?.toLowerCase(Locale.getDefault())?.contains(normalizedQuery) == true
+
+                nameMatches || addressMatches
+            }
+            displayedStoreList.addAll(filteredList)
+        }
+        storeAdapter.notifyDataSetChanged()
     }
 
     private fun boxSelectPeopel() {
@@ -986,7 +1030,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         })
     }
 
-    // --- CÁC HÀM MỚI CHO TÍNH NĂNG TÌM KIẾM GẦN ĐÂY ---
     private fun requestLocationAndSort() {
         when {
             ContextCompat.checkSelfPermission(
@@ -1027,21 +1070,24 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     }
 
     private fun sortClubsByDistance(userLocation: Location) {
-        // Chỉ tính toán và sắp xếp những CLB có tọa độ hợp lệ
-        val clubsWithLocation = listStore.filter { it.latitude != null && it.longitude != null }
+        val clubsWithLocation = displayedStoreList.filter { it.latitude != null && it.longitude != null }
 
         clubsWithLocation.forEach { club ->
             val clubLocation = Location("").apply {
                 latitude = club.latitude!!
                 longitude = club.longitude!!
             }
-            club.distance = userLocation.distanceTo(clubLocation).toDouble() // distanceTo trả về float (mét)
+            club.distance = userLocation.distanceTo(clubLocation).toDouble()
         }
 
         val sortedClubs = clubsWithLocation.sortedBy { it.distance }
 
-        listStore.clear()
-        listStore.addAll(sortedClubs)
+        val clubsWithoutLocation = displayedStoreList.filter { it.latitude == null || it.longitude == null }
+
+        displayedStoreList.clear()
+        displayedStoreList.addAll(sortedClubs)
+        displayedStoreList.addAll(clubsWithoutLocation)
+
         storeAdapter.notifyDataSetChanged()
 
         Toast.makeText(context, "Đã cập nhật danh sách CLB gần bạn!", Toast.LENGTH_SHORT).show()
@@ -1060,7 +1106,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             .setNegativeButton("Hủy") { dialog, _ -> dialog.dismiss() }
             .create().show()
     }
-    // --- KẾT THÚC CÁC HÀM MỚI ---
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -77,7 +77,6 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
             }
         }
     }
-    // --- KẾT THÚC PHẦN MỚI ---
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -94,13 +93,10 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
         attachDataListeners()
         setupSearchView()
 
-        // --- MỚI: Khởi tạo client và gán sự kiện cho nút tìm gần đây ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        // Giả sử bạn có một ImageButton với id 'btnFindNearby' trong layout fragment_home.xml
         binding.btnFindNearby.setOnClickListener {
             requestLocationAndSortByDistance()
         }
-        // --- KẾT THÚC PHẦN MỚI ---
     }
 
     private fun initializeFirebase() {
@@ -198,8 +194,8 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
                 des = store.des,
                 openingHour = store.openingHour,
                 closingHour = store.closingHour,
-                latitude = store.latitude, // Lấy latitude từ dataStore
-                longitude = store.longitude, // Lấy longitude từ dataStore
+                latitude = store.latitude,
+                longitude = store.longitude,
                 profit = overview?.profit ?: 0.0,
                 tableEmpty = overview?.tableEmpty ?: totalTables,
                 pendingBookings = overview?.pendingBookings ?: 0,
@@ -219,10 +215,9 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
 
     private fun filterList(query: String) {
         listOutstanding.clear()
-        // Đặt lại khoảng cách về null để hiển thị bình thường
         listOutstandingSearch.forEach { it.distance = null }
         val results = if (query.isEmpty()) {
-            listOutstandingSearch // Hiển thị toàn bộ danh sách khi không tìm kiếm
+            listOutstandingSearch
         } else {
             listOutstandingSearch.filter { displayInfo ->
                 val nameMatch = displayInfo.name?.contains(query, ignoreCase = true) == true

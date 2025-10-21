@@ -37,9 +37,12 @@
     <string name="ph_ng_th_c_thanh_to_n">Phương thức thanh toán</string>
     <string name="th_ng_tin_c_nh_n">Thông tin cá nhân</string>
     <string name="h_v_t_n">Họ và tên</string>
-    <string name="name">Nguyễn Văn A</string> <string name="email">Email</string>
+    <string name="name">Nguyễn Văn A</string>
+    <string name="email">Email</string>
     <string name="s_i_n_thoai">Số điện thoại</string>
-    <string name="_035_56">035******56</string> <string name="ng_y_sinh">Ngày sinh</string>
-    <string name="_1_1_2025">01/01/2000</string> <string name="l_u_thay_i">Lưu thay đổi</string>
+    <string name="_035_56">035******56</string>
+    <string name="ng_y_sinh">Ngày sinh</string>
+    <string name="_1_1_2025">01/01/2000</string>
+    <string name="l_u_thay_i">Lưu thay đổi</string>
 
 </resources>

@@ -67,12 +67,9 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
     ) { permissions ->
         when {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                // Người dùng đã cấp quyền, tiến hành lấy vị trí
                 getCurrentLocation(targetEdtLocation)
             }
-            // KIỂM TRA NẾU NGƯỜI DÙNG TỪ CHỐI VĨNH VIỄN
             !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                // Hiển thị dialog hướng dẫn đến cài đặt
                 showSettingsRedirectDialog()
             }
             else -> {
@@ -125,12 +122,9 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
             val dialogView = layoutInflater.inflate(R.layout.dialog_store, null)
             builder.setView(dialogView)
             val alertDialog = builder.create()
-
-            // Reset tọa độ tạm khi mở dialog mới
             currentLatitude = null
             currentLongitude = null
 
-            // Ánh xạ các view từ dialog
             val edtName = dialogView.findViewById<EditText>(R.id.edtName)
             val edtLocation = dialogView.findViewById<EditText>(R.id.edtLocation)
             val edtNumberPhone = dialogView.findViewById<EditText>(R.id.edtNumberPhone)
@@ -143,19 +137,14 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
             val btnAddStore = dialogView.findViewById<Button>(R.id.btnConfirmAddStore)
             val btnGetCurrentLocation = dialogView.findViewById<EditText>(R.id.edtLocation)
 
-            // --- CẬP NHẬT: XỬ LÝ CHỌN GIỜ ---
-            // Chặn bàn phím hiện lên khi bấm vào ô giờ
             edtOpeningHour.isFocusable = false
             edtOpeningHour.isFocusableInTouchMode = false
             edtClosingHour.isFocusable = false
             edtClosingHour.isFocusableInTouchMode = false
 
-            // Gán sự kiện click để hiển thị TimePickerDialog
             edtOpeningHour.setOnClickListener { showTimePickerDialog(it as EditText) }
             edtClosingHour.setOnClickListener { showTimePickerDialog(it as EditText) }
 
-
-            // --- XỬ LÝ SỰ KIỆN LẤY VỊ TRÍ ---
             btnGetCurrentLocation.setOnClickListener {
                 requestLocationPermissionAndFetch(edtLocation)
             }
@@ -168,7 +157,7 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
                 val openingHour = edtOpeningHour.text.toString().trim()
                 val closingHour = edtClosingHour.text.toString().trim()
                 val tableNumber = edtNumberTable.text.toString().trim()
-                val priceTable = edtPriceTable.text.toString().trim().toIntOrNull() ?: 0 // Handle conversion safely
+                val priceTable = edtPriceTable.text.toString().trim().toIntOrNull() ?: 0
                 val des = edtDes.text.toString().trim()
 
                 if (location.isEmpty() || name.isEmpty() || phoneNumber.isEmpty() || email.isEmpty() || openingHour.isEmpty() || closingHour.isEmpty() || tableNumber.isEmpty()) {
@@ -219,7 +208,6 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
         }
     }
 
-    // --- HÀM MỚI: HIỂN THỊ DIALOG CHỌN GIỜ ---
     private fun showTimePickerDialog(editText: EditText) {
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -228,19 +216,16 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
         val timePickerDialog = TimePickerDialog(
             requireContext(),
             { _, selectedHour, selectedMinute ->
-                // Định dạng lại giờ phút đã chọn (ví dụ: 09:05) và gán vào EditText
                 val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute)
                 editText.setText(formattedTime)
             },
             hour,
             minute,
-            true // Sử dụng định dạng 24 giờ
+            true
         )
         timePickerDialog.show()
     }
 
-
-    // --- HÀM MỚI: KIỂM TRA VÀ YÊU CẦU QUYỀN ---
     private fun requestLocationPermissionAndFetch(edtLocation: EditText) {
         // Lưu lại EditText để sử dụng trong callback
         this.targetEdtLocation = edtLocation
@@ -250,16 +235,13 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED -> {
-                // Quyền đã được cấp, lấy vị trí
                 getCurrentLocation(edtLocation)
             }
             shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                // Hiển thị dialog giải thích cho người dùng tại sao cần quyền này
                 AlertDialog.Builder(requireContext())
                     .setTitle("Cần quyền truy cập vị trí")
                     .setMessage("Để tự động lấy địa chỉ CLB, ứng dụng cần quyền truy cập vị trí của bạn. Vui lòng cấp quyền khi được hỏi.")
                     .setPositiveButton("OK") { _, _ ->
-                        // Sau khi người dùng đồng ý, hiển thị dialog của hệ thống
                         locationPermissionRequest.launch(arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -272,7 +254,6 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
                     .show()
             }
             else -> {
-                // Trực tiếp yêu cầu quyền (lần đầu tiên hoặc khi người dùng chọn "Don't ask again")
                 locationPermissionRequest.launch(arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
@@ -281,13 +262,11 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
         }
     }
 
-    // --- HÀM MỚI: HIỂN THỊ DIALOG HƯỚNG DẪN ĐẾN CÀI ĐẶT ---
     private fun showSettingsRedirectDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Quyền truy cập vị trí đã bị từ chối")
             .setMessage("Tính năng này yêu cầu quyền truy cập vị trí. Vui lòng vào cài đặt và cấp quyền cho ứng dụng.")
             .setPositiveButton("Đi đến Cài đặt") { _, _ ->
-                // Tạo Intent để mở màn hình cài đặt chi tiết của ứng dụng
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 val uri = Uri.fromParts("package", requireActivity().packageName, null)
                 intent.data = uri
@@ -300,7 +279,6 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
             .show()
     }
 
-    // --- HÀM MỚI: LẤY VỊ TRÍ HIỆN TẠI ---
     @SuppressLint("MissingPermission")
     private fun getCurrentLocation(edtLocation: EditText? = null) {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -312,7 +290,6 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
                         currentLongitude = location.longitude
                         Toast.makeText(requireContext(), "Lấy vị trí thành công!", Toast.LENGTH_SHORT).show()
 
-                        // Chuyển đổi tọa độ thành địa chỉ và điền vào EditText
                         edtLocation?.let {
                             val address = getAddressFromCoordinates(location.latitude, location.longitude)
                             it.setText(address)
@@ -327,11 +304,9 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
         }
     }
 
-    // --- HÀM MỚI: CHUYỂN TỌA ĐỘ SANG ĐỊA CHỈ ---
     private fun getAddressFromCoordinates(latitude: Double, longitude: Double): String {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
         try {
-            // The getFromLocation method now returns a list of Address objects on success
             @Suppress("DEPRECATION") // Suppress warning for older APIs
             val addresses = geocoder.getFromLocation(latitude, longitude, 1)
             if (addresses != null && addresses.isNotEmpty()) {
@@ -368,7 +343,6 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
             }
         }
         dbRefManagementStore.addValueEventListener(storeValueEventListener)
@@ -392,11 +366,11 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
         val edtOpeningHour = dialogView.findViewById<EditText>(R.id.edtOpeningHour)
         val edtClosingHour = dialogView.findViewById<EditText>(R.id.edtClosingHour)
         val edtNumberTable = dialogView.findViewById<EditText>(R.id.edtNumberTable)
+        val edtPriceTable = dialogView.findViewById<EditText>(R.id.edtPriceTable)
         val edtDes = dialogView.findViewById<EditText>(R.id.edtDes)
         val btnAddStore = dialogView.findViewById<Button>(R.id.btnConfirmAddStore)
 
-        val btnGetCurrentLocation = dialogView.findViewById<EditText>(R.id.edtLocation)
-        btnGetCurrentLocation.visibility = View.GONE
+        edtLocation.visibility = View.GONE
 
         edtOpeningHour.isFocusable = false
         edtOpeningHour.isFocusableInTouchMode = false
@@ -413,6 +387,7 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
         edtOpeningHour.setText(data.openingHour)
         edtClosingHour.setText(data.closingHour)
         edtNumberTable.setText(data.tableNumber)
+        edtPriceTable.setText(data.priceTable?.toInt() ?: 0)
         edtDes.setText(data.des)
         btnAddStore.setOnClickListener {
             val name = edtName.text.toString().trim()
@@ -422,30 +397,40 @@ class FragmentManagementBar : Fragment(), setOnclickManagemenrBar {
             val openingHour = edtOpeningHour.text.toString().trim()
             val closingHour = edtClosingHour.text.toString().trim()
             val tableNumber = edtNumberTable.text.toString().trim()
+            val priceTable = edtPriceTable.text.toString().trim().toInt()
             val des = edtDes.text.toString().trim()
-            updateStoreData(data.storeId, name, location, phoneNumber, email, tableNumber, des, openingHour, closingHour, alerDialog)
+            updateStoreData(data.storeId, name, location, phoneNumber, email, tableNumber, priceTable, des, openingHour, closingHour, alerDialog)
         }
         alerDialog.show()
     }
 
-    private fun updateStoreData(storeId: String?, name: String, location: String, phoneNumber: String, email: String, tableNumber: String, des: String, openingHour: String, closingHour: String, alerDialog: AlertDialog) {
-        val update = hashMapOf<String, Any>(
+    private fun updateStoreData(
+        storeId: String?, name: String, location: String, phoneNumber: String, email: String, tableNumber: String, priceTable: Int?, des: String, openingHour: String, closingHour: String,
+        alerDialog: AlertDialog
+    ) {
+        val update = hashMapOf<String, Any?>(
             "name" to name,
             "address" to location,
             "phone" to phoneNumber,
             "email" to email,
             "tableNumber" to tableNumber,
+            "priceTable" to priceTable,
             "des" to des,
             "openingHour" to openingHour,
             "closingHour" to closingHour
         )
+
         dbRefManagementStore.child(storeId.toString()).updateChildren(update)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+                context?.let {
+                    Toast.makeText(it, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+                }
                 alerDialog.dismiss()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Lỗi cập nhật: ${it.message}", Toast.LENGTH_LONG).show()
+                context?.let {
+                    Toast.makeText(it, "Lỗi cập nhật", Toast.LENGTH_LONG).show()
+                }
             }
     }
 

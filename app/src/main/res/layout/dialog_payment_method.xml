@@ -98,8 +98,10 @@
                     android:checked="true"
                     android:background="@drawable/radio_selector"
                     android:padding="16dp"
-                    android:text="Ví điện tử"
-                    android:textColor="@android:color/black"/>
+                    android:text="VNPay"
+                    android:textColor="@android:color/black"
+                    android:drawableEnd="@drawable/ic_vnpay"
+                    android:drawablePadding="12dp"/>
 
                 <RadioButton
                     android:id="@+id/optionCash"
@@ -108,8 +110,10 @@
                     android:layout_marginTop="8dp"
                     android:background="@drawable/radio_selector"
                     android:padding="16dp"
-                    android:text="Tiền mặt"
-                    android:textColor="@android:color/black" />
+                    android:text="VietQR"
+                    android:textColor="@android:color/black"
+                    android:drawableEnd="@drawable/ic_vietqr"
+                    android:drawablePadding="12dp"/>
             </RadioGroup>
 
         </LinearLayout>

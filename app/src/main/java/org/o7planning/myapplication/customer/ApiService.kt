@@ -35,6 +35,7 @@ interface ApiService {
     // API cho Nâng cấp
     @POST("/create_upgrade_payment_url")
     fun createUpgradePaymentUrl(@Body request: PaymentRequestUpgrade): Call<PaymentResponse>
+
     @POST("/create_vietqr_data")
     fun createVietQrData(@Body request: PaymentRequest): Call<VietQrResponse>
 
