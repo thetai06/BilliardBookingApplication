@@ -12,12 +12,11 @@ class dataStoreDisplayInfo(
     val openingHour: String? = null,
     val closingHour: String? = null,
     val totalBooking: Int? = 0,//tổng đặt bàn
-    val confirm: Int? = 0,//tổng chấp nhận
+    val simpleEnding: Int? = 0,//kết thúc đơn
     val profit: Double? = 0.0,//Doanh thu
     val tableActive: Int? = 0,
     val tableEmpty: Int? = 0,
-    val pendingBookings: Int? = 0,//chờ xử lý
-    val maintenance: Int? = 0,
+    val paidBookings: Int? = 0,//đã thanh toán
     val latitude: Double? = null,
     val longitude: Double? = null,
     var distance: Double? = null

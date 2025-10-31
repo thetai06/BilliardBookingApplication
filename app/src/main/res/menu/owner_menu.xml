@@ -7,11 +7,6 @@
         />
 
     <item
-        android:id="@+id/fragment_makeorder"
-        android:title="Đặt bàn"
-        android:icon="@drawable/icons8shoppingbag50"
-        />
-    <item
         android:id="@+id/fragment_tablemanagement"
         android:title="Quản lý bàn"
         android:icon="@drawable/icons8ball51"
@@ -19,6 +14,12 @@
 
     <item
         android:id="@+id/fragment_ManagementBar"
+        android:title="Quản lý quán"
+        android:icon="@drawable/icons8shoppingbag50"
+        />
+
+    <item
+        android:id="@+id/fragment_setting"
         android:title="Cài đặt"
         android:icon="@drawable/icons8settings24"
         />

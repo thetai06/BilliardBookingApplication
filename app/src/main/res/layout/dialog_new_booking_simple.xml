@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    android:layout_margin="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvDialogTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Đặt Bàn Nhanh (Owner)"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/ColorBalck"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/edtCustomerName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Tên khách hàng"
+            android:inputType="textPersonName"
+            android:maxLines="1"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/tvDialogTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/edtCustomerPhone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Số điện thoại"
+            android:inputType="phone"
+            android:maxLines="1"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/edtCustomerName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/tvBookingDate"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:text="Chọn Ngày"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:drawableStart="@drawable/icons8calendar24"
+            android:drawablePadding="8dp"
+            android:background="@drawable/bg_dialog"
+            android:textColor="@color/ColorBalck"
+            android:textSize="16sp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@id/edtCustomerPhone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/tvBookingStartTime"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:text="Giờ Bắt Đầu"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:drawableStart="@drawable/icons8watch30"
+            android:drawablePadding="8dp"
+            android:background="@drawable/bg_dialog"
+            android:textColor="@color/ColorBalck"
+            android:textSize="16sp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@id/tvBookingDate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tvBookingEndTime"
+            app:layout_constraintHorizontal_weight="1"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/tvBookingEndTime"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:text="Giờ Kết Thúc"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:drawableStart="@drawable/icons8watch30"
+            android:drawablePadding="8dp"
+            android:background="@drawable/bg_dialog"
+            android:textColor="@color/ColorBalck"
+            android:textSize="16sp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toTopOf="@id/tvBookingStartTime"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvBookingStartTime"
+            app:layout_constraintHorizontal_weight="1"
+            android:layout_marginStart="8dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnConfirmBooking"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Xác nhận Đặt bàn"
+            android:textAllCaps="false"
+            android:background="@drawable/bg_btn_orange"
+            app:layout_constraintTop_toBottomOf="@id/tvBookingStartTime"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

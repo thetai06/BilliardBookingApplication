@@ -16,48 +16,6 @@
             android:layout_height="wrap_content"
             tools:ignore="MissingConstraints" />
 
-        <ImageView
-            android:id="@+id/ivTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:src="@drawable/icons8_sale_48"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rvOverview"/>
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quản lý mã giảm giá"
-            android:textColor="@color/colorMain"
-            android:layout_marginLeft="20dp"
-            android:textSize="@dimen/dimen_txt_title_22sp"
-            app:layout_constraintLeft_toRightOf="@+id/ivTitle"
-            app:layout_constraintTop_toTopOf="@id/ivTitle"
-            app:layout_constraintBottom_toBottomOf="@+id/ivTitle"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnAddVoucher"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="120dp"
-            android:text="Thêm Voucher"
-            android:textColor="@color/ColorWhite"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/bg_btn_add_bar"
-            app:layout_constraintTop_toTopOf="@+id/title"
-            app:layout_constraintBottom_toBottomOf="@+id/title"
-            app:layout_constraintRight_toRightOf="parent"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvVoucherOverview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivTitle"/>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.core.widget.NestedScrollView>

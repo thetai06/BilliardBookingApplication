@@ -1,4 +1,5 @@
 <resources>
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_GOES_HERE.apps.googleusercontent.com</string>
     <string name="app_name">My Application</string>
     <string name="txt_fastbooking">Đặt bàn nhanh</string>
     <string name="txt_desc_fastbooking">Tìm và đặt bàn bi-a tại CLB yêu thích</string>

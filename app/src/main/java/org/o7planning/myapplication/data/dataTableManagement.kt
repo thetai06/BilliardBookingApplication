@@ -12,9 +12,10 @@ class dataTableManagement(
     val endTime:String="",
     val dateTime:String="",
     val person: String="",
-    val money: String="",
+    val money: Double = 0.0,
+    val paymentUrl: String? = null,
+    val qrDataString: String? = null,
     val createdAt: Long? = null,
-    val paymentStatus: String = "",
-    val status: String="",
-    val addressClb: String="",
-    val btnStatus: String="")
+    val status: String? = null,
+    val paymentStatus: String? = null,
+    val addressClb: String? = null)

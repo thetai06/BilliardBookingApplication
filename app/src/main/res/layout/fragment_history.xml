@@ -74,6 +74,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:scrollbars="vertical"
+                android:paddingBottom="150dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ivTitle" />
         </androidx.constraintlayout.widget.ConstraintLayout>

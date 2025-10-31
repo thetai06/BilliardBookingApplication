@@ -96,28 +96,16 @@ class FragmentProfile : Fragment() {
         when (position) {
 
             0 -> {
-                findNavController().navigate(R.id.fragment_upgrade)
-                (activity as MainActivity).hideBottomNavigation()
+                Toast.makeText(requireContext(),"Liên hệ nhà phát triển", Toast.LENGTH_SHORT).show()
             }
             1 -> {
                 findNavController().navigate(R.id.fragment_history)
                 (activity as MainActivity).hideBottomNavigation()
             }
-//            2 -> {
-//                findNavController().navigate(R.id.fragment_payment_method)
-//                (activity as MainActivity).hideBottomNavigation()
-//            }
-//            3 -> {
-//                findNavController().navigate(R.id.fragment_notification)
-//                (activity as MainActivity).hideBottomNavigation()
-//            }
             2 -> {
                 findNavController().navigate(R.id.fragment_personal_information)
                 (activity as MainActivity).hideBottomNavigation()
             }
-//            5 -> {
-//                Toast.makeText(requireContext(), item.name , Toast.LENGTH_SHORT).show()
-//            }
             else  -> {
                 mAuth.signOut()
                 (activity as MainActivity).hideBottomNavigation()

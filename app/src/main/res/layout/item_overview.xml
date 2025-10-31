@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context=".owner.FragmentOverview">
+        tools:context=".Owner.FragmentOverview">
 
         <ImageView
             android:id="@+id/imgHeader"
@@ -88,7 +88,7 @@
                     android:id="@+id/box_Statistics"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_xanhngoc"
+                    android:background="@drawable/bg_white_radius"
                     android:padding="10dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -113,117 +113,156 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
+                        android:id="@+id/tv_SumTable"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Tổng đơn đặt bàn:"
+                        android:textSize="@dimen/dimen_txt_16sp"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Statistics" />
+
+                    <TextView
                         android:id="@+id/txt_SumTable"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Tổng đặt bàn: 10"
+                        android:text="0"
+                        android:textSize="@dimen/dimen_txt_16sp"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Statistics" />
+
+                    <TextView
+                        android:id="@+id/tv_Confirm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Chủ chi nhánh hoàn thành đơn:"
                         android:textSize="@dimen/dimen_txt_16sp"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/txt_Statistics" />
+                        app:layout_constraintTop_toBottomOf="@+id/txt_SumTable" />
 
                     <TextView
                         android:id="@+id/txt_Confirm"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Đã xác nhận: 8"
+                        android:text="0"
                         android:textSize="@dimen/dimen_txt_16sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/txt_SumTable" />
 
+                    <TextView
+                        android:id="@+id/tv_Processing"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Đã thanh toán: "
+                        android:textSize="@dimen/dimen_txt_16sp"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Confirm" />
 
                     <TextView
                         android:id="@+id/txt_Processing"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="chờ xử lý: 2"
+                        android:text="0"
                         android:textSize="@dimen/dimen_txt_16sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/txt_Confirm" />
 
                     <TextView
-                        android:id="@+id/txt_profit"
+                        android:id="@+id/tv_Statistics_Status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Doanh thu: 800.000"
-                        android:textColor="@color/color_xanhnhat"
+                        android:text="Tổng bàn:"
                         android:textSize="@dimen/dimen_txt_16sp"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/txt_Processing" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/box_Status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:background="@drawable/bg_xanhngoc"
-                    android:padding="10dp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/box_Statistics">
-
-                    <ImageView
-                        android:id="@+id/iv_Title_Status"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:src="@drawable/icons8_ball_32"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/txt_Title_Status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="5dp"
-                        android:text="Trạng thái bàn chơi"
-                        android:textColor="@color/colorMain"
-                        android:textSize="@dimen/dimen_txt_20sp"
-                        app:layout_constraintLeft_toRightOf="@+id/iv_Title_Status"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/txt_Statistics_Status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Tổng bàn: 10"
+                        android:text="0"
+                        android:textSize="@dimen/dimen_txt_16sp"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Processing" />
+
+
+                    <TextView
+                        android:id="@+id/tv_Table_Active"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Đang hoạt động: "
                         android:textSize="@dimen/dimen_txt_16sp"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/txt_Title_Status" />
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Statistics_Status" />
 
                     <TextView
                         android:id="@+id/txt_Table_Active"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Đang hoạt động: 8"
+                        android:text="0"
+                        android:textSize="@dimen/dimen_txt_16sp"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Statistics_Status" />
+
+                    <TextView
+                        android:id="@+id/tv_Table_Empty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Bàn trống: "
                         android:textSize="@dimen/dimen_txt_16sp"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/txt_Statistics_Status" />
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Table_Active" />
 
                     <TextView
                         android:id="@+id/txt_Table_Empty"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Bàn trống: 2"
+                        android:text="0"
                         android:textSize="@dimen/dimen_txt_16sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/txt_Table_Active" />
 
                     <TextView
-                        android:id="@+id/maintenance"
+                        android:id="@+id/tvLine"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        app:layout_constraintTop_toBottomOf="@+id/txt_Table_Empty"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        android:background="@color/colorMain"/>
+
+                    <TextView
+                        android:id="@+id/tv_profit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Bảo trì: 0"
-                        android:textColor="@color/color_xanhnhat"
+                        android:text="Doanh thu: "
+                        android:textColor="@color/colorMain"
                         android:textSize="@dimen/dimen_txt_16sp"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/txt_Table_Empty" />
+                        app:layout_constraintTop_toBottomOf="@+id/tvLine" />
+
+                    <TextView
+                        android:id="@+id/txt_profit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="0"
+                        android:textColor="@color/colorMain"
+                        android:textSize="@dimen/dimen_txt_16sp"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvLine" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

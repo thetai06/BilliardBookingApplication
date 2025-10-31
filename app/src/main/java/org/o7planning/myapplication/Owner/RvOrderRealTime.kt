@@ -1,4 +1,4 @@
-package org.o7planning.myapplication.owner
+package org.o7planning.myapplication.Owner
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -40,8 +40,8 @@ class RvOrderRealTime(
             timeRealtime.text = "Thời gian: ${data.startTime} - ${data.endTime}"
             address.text = data.addressClb
             personRealtime.text = "${data.person} Người"
-            statusRealtime.text = data.status
-            manyRealtime.text = data.money
+            statusRealtime.text = data.paymentStatus
+            manyRealtime.text = data.money.toString()
             btnConfirmRealtime.setOnClickListener {
                 listener.onConfirmClick(data)
             }

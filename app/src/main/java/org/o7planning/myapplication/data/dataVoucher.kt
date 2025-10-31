@@ -1,10 +1,12 @@
 package org.o7planning.myapplication.data
 
-class dataVoucher(
-    val id:String? = null,
-    val des:String? = null,
-    val voucherTimeStart: String? = null,
-    val voucherTimeEnd: String? = null,
-    val voucherCode:String? = null,
-    val voucherValue:String? = null
+data class dataVoucher(
+    var id: String? = null,
+    var code: String? = null,
+    var description: String? = null,
+    var discount: Long? = 0L,
+    var expiryDate: String? = null,
+    var isActive: Boolean? = true,
+    var minOrder: Long? = 0L,
+    var storeId: String? = null
 )

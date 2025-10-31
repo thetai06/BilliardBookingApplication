@@ -53,18 +53,6 @@
         <action
             android:id="@+id/fragment_signup_to_fragment_login"
             app:destination="@id/fragment_login" />
-        <action
-            android:id="@+id/fragment_signup_to_fragment_access_location"
-            app:destination="@id/fragment_access_location" />
-    </fragment>
-
-    <fragment android:id="@+id/fragment_access_location"
-        android:name="org.o7planning.myapplication.customer.FragmentAccessLocation"
-        tools:layout="@layout/fragment_access_location">
-        <action
-            android:id="@+id/fragment_access_location_to_fragment_home"
-            app:destination="@id/fragment_home" />
-
     </fragment>
 
     <fragment
@@ -210,7 +198,7 @@
 <!--    các fragment Chủ cửa hàng-->
     <fragment
         android:id="@+id/fragment_overview"
-        android:name="org.o7planning.myapplication.owner.FragmentOverview"
+        android:name="org.o7planning.myapplication.Owner.FragmentOverview"
         tools:layout="@layout/fragment_overview">
         <action
             android:id="@+id/fragment_overview_to_fragment_ManagementBar"
@@ -221,44 +209,51 @@
             android:name="org.o7planning.myapplication.FragmentTablegame"
             app:destination="@id/fragment_tablemanagement"/>
         <action
-            android:id="@+id/fragment_overview_to_fragment_makeorder"
+            android:id="@+id/fragment_overview_to_fragment_setting"
             android:name="org.o7planning.myapplication.FragmentMakeorder"
-            app:destination="@id/fragment_makeorder"/>
+            app:destination="@id/fragment_setting"/>
 
 
     </fragment>
     <fragment
-        android:id="@+id/fragment_makeorder"
-        android:name="org.o7planning.myapplication.owner.FragmentMakeorder"
-        tools:layout="@layout/fragment_makeorder">
+        android:id="@+id/fragment_setting"
+        android:name="org.o7planning.myapplication.Owner.FragmentSetting"
+        tools:layout="@layout/fragment_setting">
         <action
-            android:id="@+id/fragment_makeorder_to_fragment_ManagementBar"
+            android:id="@+id/fragment_setting_to_fragment_ManagementBar"
             android:name="org.o7planning.myapplication.FragmentManagementBar"
             app:destination="@id/fragment_ManagementBar"/>
         <action
-            android:id="@+id/fragment_makeorder_to_fragment_tablemanagement"
+            android:id="@+id/fragment_setting_to_fragment_tablemanagement"
             android:name="org.o7planning.myapplication.FragmentTablegame"
             app:destination="@id/fragment_tablemanagement"
             />
         <action
-            android:id="@+id/fragment_makeorder_to_fragment_overview"
+            android:id="@+id/fragment_setting_to_fragment_overview"
             android:name="org.o7planning.myapplication.FragmentOverview"
             app:destination="@id/fragment_overview"/>
-
+        <action
+            android:id="@+id/fragment_setting_to_fragment_owner_information"
+            android:name="org.o7planning.myapplication.FragmentOwnerInformartion"
+            app:destination="@+id/fragment_owner_informertion"/>
+        <action
+            android:id="@+id/fragment_setting_to_fragment_order_history"
+            android:name="org.o7planning.myapplication.FragmentOrderHistory"
+            app:destination="@+id/fragment_order_history"/>
 
     </fragment>
     <fragment
         android:id="@+id/fragment_tablemanagement"
-        android:name="org.o7planning.myapplication.owner.FragmentTableManagement"
+        android:name="org.o7planning.myapplication.Owner.FragmentTableManagement"
         tools:layout="@layout/fragment_tablemanagement">
         <action
             android:id="@+id/fragment_tablemanagement_to_fragment_ManagementBar"
             android:name="org.o7planning.myapplication.FragmentManagementBar"
             app:destination="@id/fragment_ManagementBar"/>
         <action
-            android:id="@+id/fragment_tablemanagement_to_fragment_makeorder"
+            android:id="@+id/fragment_tablemanagement_to_fragment_setting"
             android:name="org.o7planning.myapplication.FragmentMakeorder"
-            app:destination="@id/fragment_makeorder"/>
+            app:destination="@id/fragment_setting"/>
         <action
             android:id="@+id/fragment_tablemanagement_to_fragment_overview"
             android:name="org.o7planning.myapplication.FragmentOverview"
@@ -267,16 +262,16 @@
     </fragment>
     <fragment
         android:id="@+id/fragment_ManagementBar"
-        android:name="org.o7planning.myapplication.owner.FragmentManagementBar"
+        android:name="org.o7planning.myapplication.Owner.FragmentManagementBar"
         tools:layout="@layout/fragment_management_bar">
         <action
             android:id="@+id/fragment_ManagementBar_to_fragment_tablemanagement"
             android:name="org.o7planning.myapplication.FragmentTablegame"
             app:destination="@id/fragment_tablemanagement"/>
         <action
-            android:id="@+id/fragment_ManagementBar_to_fragment_makeorder"
+            android:id="@+id/fragment_ManagementBar_to_fragment_setting"
             android:name="org.o7planning.myapplication.FragmentMakeorder"
-            app:destination="@id/fragment_makeorder"/>
+            app:destination="@id/fragment_setting"/>
 
         <action
             android:id="@+id/fragment_ManagementBar_to_fragment_overview"
@@ -291,15 +286,23 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_upgrade"
-        android:name="org.o7planning.myapplication.admin.FragmentUpgrade"
-        tools:layout="@layout/fragment_upgrade">
+        android:id="@+id/fragment_owner_informertion"
+        android:name="org.o7planning.myapplication.Owner.FragmentOwnerInformartion"
+        tools:layout="@layout/fragment_owner_informartion">
         <action
-            android:id="@+id/fragment_ManagementBar_to_fragment_overview"
-            android:name="org.o7planning.myapplication.FragmentOverview"
-            app:destination="@id/fragment_overview"/>
-
+            android:id="@+id/fragment_owner_informertion_to_fragment_setting"
+            android:name="org.o7planning.myapplication.FragmentSetting"
+            app:destination="@+id/fragment_setting"
+            />
     </fragment>
 
-
+    <fragment
+        android:id="@+id/fragment_order_history"
+        android:name="org.o7planning.myapplication.Owner.FragmentOrderHistory"
+        tools:layout="@layout/fragment_order_history">
+        <action
+            android:id="@+id/fragment_order_history_to_fragment_setting"
+            android:name="org.o7planning.myapplication.FragmentSetting"
+            app:destination="@+id/fragment_setting"/>
+    </fragment>
 </navigation>

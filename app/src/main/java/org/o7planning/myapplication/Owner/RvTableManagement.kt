@@ -9,7 +9,6 @@ import org.o7planning.myapplication.databinding.ItemTableManagementBinding
 
 interface setOnclickTableManagement{
     fun onClickComplete(data: dataTableManagement)
-    fun onClickEndComplete(data: dataTableManagement)
 }
 
 
@@ -40,16 +39,15 @@ class RvTableManagement(val list: List<dataTableManagement>,
             timeRealtime.text = "Thời gian: ${data.startTime} - ${data.endTime}"
             address.text = data.addressClb
             personRealtime.text = data.person + " Người"
-            manyRealtime.text = data.money
+            manyRealtime.text = data.money.toString()
             statusTableManagement.text = data.status
-            btnStatus.text = data.btnStatus
+            if (data.status == "Đã hoàn thành" || data.status == "Đã huỷ" || data.status == "Đã hoàn thành(owner)"){
+                btnStatus.visibility = View.GONE
+            }else{
+                btnStatus.visibility = View.VISIBLE
+            }
             btnStatus.setOnClickListener {
                 listener.onClickComplete(data)
-                btnStatus.visibility = View.GONE
-                btnEndStatus.visibility = View.VISIBLE
-            }
-            btnEndStatus.setOnClickListener {
-                listener.onClickEndComplete(data)
             }
         }
     }

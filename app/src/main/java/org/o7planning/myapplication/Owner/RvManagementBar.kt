@@ -1,4 +1,4 @@
-package org.o7planning.myapplication.owner
+package org.o7planning.myapplication.Owner
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

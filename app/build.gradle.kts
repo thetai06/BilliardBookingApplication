@@ -42,6 +42,11 @@ android {
 }
 
 dependencies {
+    //DN with gg
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+
     implementation("com.google.android.gms:play-services-location:21.2.0")
     //vẽ QR
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")

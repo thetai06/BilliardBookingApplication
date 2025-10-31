@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_dialog"
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="5dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/titleBoxInvoice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thông tin đặt bàn:"
+            android:textColor="@color/colorMain"
+            android:textSize="27sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/btnExit"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:backgroundTint="@android:color/transparent"
+            android:src="@drawable/icons8delete35"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/txtGameTypeLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_marginTop="10dp"
+            android:text="Loại game:"
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/titleBoxInvoice" />
+
+        <TextView
+            android:id="@+id/txtGameType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_marginTop="10dp"
+            android:text="8-ball"
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/titleBoxInvoice" />
+
+        <TextView
+            android:id="@+id/txtManyPeoPleLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Số lượng người:"
+            android:padding="5dp"
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintStart_toStartOf="@+id/txtGameTypeLeft"
+            app:layout_constraintTop_toBottomOf="@+id/txtGameType" />
+
+        <TextView
+            android:id="@+id/txtManyPeoPle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:padding="5dp"
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintTop_toBottomOf="@+id/txtGameType"
+
+            app:layout_constraintRight_toRightOf="parent"/>
+
+        <TextView
+            android:id="@+id/txtTimeLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thời gian:"
+            android:padding="5dp"
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintStart_toStartOf="@+id/txtGameTypeLeft"
+            app:layout_constraintTop_toBottomOf="@+id/txtManyPeoPle" />
+
+        <TextView
+            android:id="@+id/txtTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="..."
+            android:padding="5dp"
+            android:textSize="@dimen/dimen_txt_20sp"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtManyPeoPle" />
+
+        <TextView
+            android:id="@+id/txtDateTimeLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Ngày:"
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintStart_toStartOf="@+id/txtGameTypeLeft"
+            app:layout_constraintTop_toBottomOf="@+id/txtTime" />
+
+        <TextView
+            android:id="@+id/txtDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="..."
+            android:textSize="@dimen/dimen_txt_20sp"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtTime" />
+
+        <TextView
+            android:id="@+id/txtSelectClbLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Cơ sở:"
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintStart_toStartOf="@+id/txtGameTypeLeft"
+            app:layout_constraintTop_toBottomOf="@+id/txtDateTime" />
+
+        <TextView
+            android:id="@+id/txtSelectClb"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:gravity="end"
+            app:layout_constraintWidth_percent="0.5"
+            android:text="..."
+            android:textSize="@dimen/dimen_txt_20sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtDateTime" />
+
+        <TextView
+            android:id="@+id/tvDiscount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/dimen_txt_20sp"
+            android:padding="5dp"
+            android:text="Giảm giá: -0đ"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="@+id/txtSelectClb"
+            app:layout_constraintTop_toBottomOf="@+id/txtSelectClb"/>
+
+        <TextView
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginHorizontal="10dp"
+            android:background="@color/colorMain"
+            app:layout_constraintLeft_toLeftOf="@+id/tvDiscount"
+            app:layout_constraintTop_toBottomOf="@+id/tvDiscount"/>
+
+        <TextView
+            android:id="@+id/PrepareTheBillLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textSize="@dimen/dimen_txt_20sp"
+            android:textColor="@color/colorMain"
+            android:text="Tạm tính:"
+            app:layout_constraintLeft_toLeftOf="@+id/txtGameTypeLeft"
+            app:layout_constraintTop_toBottomOf="@+id/line"/>
+
+        <TextView
+            android:id="@+id/PrepareTheBill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textSize="@dimen/dimen_txt_20sp"
+            android:textColor="@color/colorMain"
+            android:text="..."
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/line"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnConfirmBooking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_btn_orange"
+            android:text="@string/btn_confirm_booking"
+            android:textColor="@color/ColorWhite"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/PrepareTheBill" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

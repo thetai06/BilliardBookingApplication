@@ -4,18 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".owner.FragmentTableManagement">
+    tools:context=".Owner.FragmentTableManagement">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
             android:padding="10dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <ImageView
                 android:id="@+id/iv_Title_TableManagement"
                 android:layout_width="wrap_content"
@@ -23,25 +24,133 @@
                 android:src="@drawable/icons8note48"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
+
             <TextView
                 android:id="@+id/txt_Title_TableManagement"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quản lý đặt bàn hôm nay"
-                android:layout_marginLeft="10dp"
+                android:text="Quản lý Đơn Đặt Bàn"
+                android:layout_marginLeft="5dp"
                 android:padding="10dp"
                 android:textColor="@color/colorMain"
-                android:textSize="@dimen/dimen_txt_title_22sp"
+                android:textSize="@dimen/dimen_txt_16sp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toRightOf="@+id/iv_Title_TableManagement"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnNewBooking"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Thêm đơn mới"
+                android:paddingHorizontal="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textColor="@color/ColorWhite"
+                android:drawableStart="@drawable/add24dp1f1f1f"
+                android:drawableTint="@color/ColorWhite"
+                android:textAllCaps="false"
+                app:layout_constraintRight_toRightOf="parent"
+                android:background="@drawable/bg_btn_orange"
+                />
+
+            <HorizontalScrollView
+                android:id="@+id/hsvFilters"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginTop="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_Title_TableManagement">
+
+                <LinearLayout
+                    android:id="@+id/llFilterGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnFilterStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Trạng thái"
+                        android:drawablePadding="4dp"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="8dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:background="@drawable/bg_dialog"
+                        android:textColor="@color/ColorBalck"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"/>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnFilterDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ngày"
+                        android:drawableStart="@drawable/icons8calendar24"
+                        android:drawablePadding="4dp"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="8dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:background="@drawable/bg_dialog"
+                        android:textColor="@color/ColorBalck"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"/>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnFilterTime"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_dialog"
+                        android:drawableStart="@drawable/icons8watch30"
+                        android:drawablePadding="4dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:text="Giờ"
+                        android:textColor="@color/ColorBalck"
+                        android:textSize="14sp" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnClearFilters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Xóa lọc"
+                        android:drawableStart="@drawable/icons8delete35"
+                        android:drawableTint="@color/red"
+                        android:drawablePadding="4dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/red"
+                        android:background="@drawable/bg_dialog"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"/>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTableManagement"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:paddingBottom="70dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txt_Title_TableManagement"/>
+                app:layout_constraintTop_toBottomOf="@+id/hsvFilters"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:listitem="@layout/item_table_management"/>
+
+            <TextView
+                android:id="@+id/tvNoData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Không có đơn đặt bàn nào được tìm thấy."
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/rvTableManagement"
+                app:layout_constraintEnd_toEndOf="@+id/rvTableManagement"
+                app:layout_constraintStart_toStartOf="@+id/rvTableManagement"
+                app:layout_constraintTop_toTopOf="@+id/rvTableManagement" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

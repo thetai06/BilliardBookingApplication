@@ -1,6 +1,8 @@
 package org.o7planning.myapplication.admin
 
 import android.app.AlertDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
@@ -111,6 +113,8 @@ class FragmentLogin : Fragment() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_send_code, null)
         builder.setView(dialogView)
         val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val btnVerifyOtp = dialogView.findViewById<Button>(R.id.btn_Ok_Password_SendCode)
         btnVerifyOtp.setOnClickListener {

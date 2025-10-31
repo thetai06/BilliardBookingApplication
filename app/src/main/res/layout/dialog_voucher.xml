@@ -1,148 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:maxWidth="350dp"
-    android:paddingHorizontal="20dp"
+    android:background="@drawable/bg_dialog"
     android:padding="@dimen/dimen_txt_20sp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:paddingHorizontal="20dp">
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/tvVoucherTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Thêm Voucher Mới"
         android:textColor="@color/colorMain"
         android:textSize="@dimen/dimen_txt_title_22sp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvDes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/dimen_txt_20sp"
         android:paddingVertical="5dp"
         android:text="Thông tin chi tiết"
+        android:textSize="@dimen/dimen_txt_20sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title"/>
+        app:layout_constraintTop_toBottomOf="@+id/tvVoucherTitle" />
 
     <EditText
-        android:id="@+id/edtDes"
+        android:id="@+id/edtVoucherDes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minWidth="250dp"
-        android:textSize="@dimen/dimen_txt_20sp"
-        android:hint="Thông tin chi tiết"
-        android:padding="10dp"
         android:background="@drawable/bg_send_code"
-        app:layout_constraintTop_toBottomOf="@+id/tvDes"
+        android:hint="Thông tin chi tiết"
+        android:minWidth="250dp"
+        android:padding="10dp"
+        android:textSize="@dimen/dimen_txt_20sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvDes" />
 
     <TextView
         android:id="@+id/tvVoucherTimeStart"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/dimen_txt_20sp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:paddingVertical="5dp"
-        android:maxLines="1"
-        android:ellipsize="end"
         android:text="Thời gian áp dụng"
+        android:textSize="@dimen/dimen_txt_20sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtDes"/>
+        app:layout_constraintTop_toBottomOf="@+id/edtVoucherDes" />
 
     <TextView
-        android:id="@+id/edtVoucherTimeStart"
+        android:id="@+id/edtVoucherExpiry"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minWidth="250dp"
-        android:textSize="@dimen/dimen_txt_20sp"
-        android:hint="Ngày bắt đầu"
-        android:padding="10dp"
-        android:maxLines="1"
-        android:ellipsize="end"
-        app:layout_constraintWidth_percent="0.49"
         android:background="@drawable/bg_send_code"
+        android:ellipsize="end"
+        android:hint="Ngày hết hạn"
+        android:maxLines="1"
+        android:minWidth="250dp"
+        android:padding="10dp"
+        android:textSize="@dimen/dimen_txt_20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvVoucherTimeStart"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintWidth_percent="0.49" />
 
-    <TextView
-        android:id="@+id/edtVoucherTimeEnd"
+    <EditText
+        android:id="@+id/edtVoucherMinOrder"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minWidth="250dp"
-        android:textSize="@dimen/dimen_txt_20sp"
-        android:hint="Ngày kết thúc"
-        android:padding="10dp"
-        android:maxLines="1"
-        android:ellipsize="end"
-        app:layout_constraintWidth_percent="0.49"
         android:background="@drawable/bg_send_code"
+        android:ellipsize="end"
+        android:hint="Đơn hàng tối thiểu (MinOrder)"
+        android:inputType="number"
+        android:maxLines="1"
+        android:minWidth="250dp"
+        android:padding="10dp"
+        android:textSize="@dimen/dimen_txt_20sp"
+        app:layout_constraintLeft_toRightOf="@+id/edtVoucherExpiry"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvVoucherTimeStart"
-        app:layout_constraintLeft_toRightOf="@+id/edtVoucherTimeStart"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintWidth_percent="0.49" />
+
 
     <TextView
         android:id="@+id/tvVoucherCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/dimen_txt_20sp"
         android:paddingVertical="5dp"
         android:text="Mã giảm giá"
+        android:textSize="@dimen/dimen_txt_20sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtVoucherTimeEnd"/>
+        app:layout_constraintTop_toBottomOf="@+id/edtVoucherExpiry" />
 
     <EditText
         android:id="@+id/edtVoucherCode"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/dimen_txt_20sp"
-        android:hint="Mã giảm giá"
-        android:padding="10dp"
-        android:maxLines="1"
-        android:ellipsize="end"
         android:background="@drawable/bg_send_code"
-        app:layout_constraintWidth_percent="0.49"
+        android:ellipsize="end"
+        android:hint="Mã giảm giá"
+        android:maxLines="1"
+        android:padding="10dp"
+        android:textSize="@dimen/dimen_txt_20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvVoucherCode"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintWidth_percent="0.49" />
 
     <TextView
         android:id="@+id/tvVoucherValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/dimen_txt_20sp"
         android:paddingVertical="5dp"
         android:text="Phần trăm(%)"
-        app:layout_constraintLeft_toLeftOf="@+id/edtVoucherValue"
-        app:layout_constraintTop_toBottomOf="@+id/edtVoucherTimeEnd"/>
+        android:textSize="@dimen/dimen_txt_20sp"
+        app:layout_constraintLeft_toLeftOf="@+id/edtVoucherDiscount"
+        app:layout_constraintTop_toBottomOf="@+id/edtVoucherExpiry" />
 
     <EditText
-        android:id="@+id/edtVoucherValue"
+        android:id="@+id/edtVoucherDiscount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/dimen_txt_20sp"
-        android:hint="Phần trăm áp dụng (%)"
+        android:background="@drawable/bg_send_code"
         android:ellipsize="end"
+        android:hint="Phần trăm áp dụng (%)"
+        android:inputType="number"
         android:maxLines="1"
         android:padding="10dp"
-        android:background="@drawable/bg_send_code"
-        app:layout_constraintWidth_percent="0.49"
+        android:textSize="@dimen/dimen_txt_20sp"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvVoucherValue"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintWidth_percent="0.49" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnConfirm"
+        android:id="@+id/btnConfirmVoucher"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Xác nhận"
-        android:minWidth="150dp"
         android:layout_marginTop="20dp"
-        android:textColor="@color/ColorWhite"
         android:background="@drawable/bg_btn_orange"
-        app:layout_constraintTop_toBottomOf="@+id/edtVoucherValue"
+        android:minWidth="150dp"
+        android:text="Xác nhận"
+        android:textColor="@color/ColorWhite"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtVoucherDiscount" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

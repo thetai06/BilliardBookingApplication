@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".owner.FragmentManagementBar">
+    tools:context=".Owner.FragmentManagementBar">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -47,17 +47,6 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hệ thống quản lý thông tin các quán bi-a"
-                android:textColor="@color/ColorWhite"
-                android:textSize="@dimen/dimen_btn_txt_15sp"
-                app:layout_constraintLeft_toLeftOf="@+id/title_Management"
-                app:layout_constraintRight_toRightOf="@+id/title_Management"
-                app:layout_constraintTop_toBottomOf="@+id/title_Management" />
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -68,59 +57,46 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/boxTitleManagement">
 
-            <TextView
-                android:id="@+id/txt_ListBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Danh Sách Quán Bi-a"
-                android:textSize="@dimen/dimen_txt_title_22sp"
-                android:textStyle="bold"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/txt_DesListBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Quản lý thông tin các quán bi-a cửa bạn"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txt_ListBar" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnAddStore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_btn_add_bar"
-                android:paddingHorizontal="10dp"
-                android:text="Thêm Quán Bi-a"
-                android:textAllCaps="false"
-                android:textColor="@color/ColorWhite"
-                android:textSize="@dimen/dimen_btn_txt_15sp"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvBilliardsBarManagement"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:layout_constraintHeight_max="550dp"
+                android:nestedScrollingEnabled="false"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txt_DesListBar" />
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnLogOut"
+
+            <TextView
+                android:id="@+id/txt_ListVoucher"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_btn_delete"
-                android:minWidth="150dp"
-                android:layout_marginTop="20dp"
-                android:text="Đăng Xuất"
-                android:textColor="@color/ColorWhite"
+                android:layout_marginTop="40dp"
+                android:text="Quản Lý Voucher"
+                android:textSize="@dimen/dimen_txt_title_22sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rvBilliardsBarManagement" />
+
+            <TextView
+                android:id="@+id/txt_DesListVoucher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Tạo, sửa, xóa các mã giảm giá cho hệ thống CLB"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_ListVoucher" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvVoucherManagement"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_DesListVoucher" />
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

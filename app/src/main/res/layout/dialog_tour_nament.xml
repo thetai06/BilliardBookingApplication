@@ -10,7 +10,9 @@
         android:layout_height="wrap_content"
         android:maxWidth="350dp"
         android:padding="20dp"
-        android:background="@drawable/bg_xanhngoc">
+        android:background="@drawable/bg_dialog"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"

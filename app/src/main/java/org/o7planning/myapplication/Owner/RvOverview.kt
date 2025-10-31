@@ -1,4 +1,4 @@
-package org.o7planning.myapplication.owner
+package org.o7planning.myapplication.Owner
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -30,14 +30,13 @@ class RvOverview(val list: List<dataStoreDisplayInfo>) :
             imgHeader.setImageResource(R.drawable.quan_bi_a2)
             txtTitleShop.text = data.name
             txtLocationOverview.text = data.address
-            txtSumTable.text = "Tổng đặt bàn: ${data.totalBooking.toString()}"
-            txtConfirm.text = "Đã xác nhận: ${data.confirm.toString()}"
-            txtProfit.text = "Doanh thu: ${data.profit.toString()}"
-            txtProcessing.text = "Chờ xử lý: ${data.pendingBookings.toString()}"
-            txtStatisticsStatus.text = "Tổng bàn: ${data.tableNumber}"
-            txtTableActive.text = "Bàn đang hoạt động: ${data.tableActive.toString()}"
-            txtTableEmpty.text = "Bàn trống: ${data.tableEmpty.toString()}"
-            maintenance.text = "Bàn Bảo trì: ${data.maintenance.toString()}"
+            txtSumTable.text = data.totalBooking.toString()
+            txtConfirm.text = data.simpleEnding.toString()
+            txtProfit.text = data.profit.toString()
+            txtProcessing.text = data.paidBookings.toString()
+            txtStatisticsStatus.text = data.tableNumber
+            txtTableActive.text = data.tableActive.toString()
+            txtTableEmpty.text = data.tableEmpty.toString()
         }
     }
 

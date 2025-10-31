@@ -37,11 +37,11 @@ class FragmentSplash : Fragment() {
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable{
             hideLoading()
+            checkUserStatusAndNavigate()
         }
 
         handler.postDelayed(runnable, 3000)
 
-        checkUserStatusAndNavigate()
     }
 
     private fun completeNavigation(targetId: Int, options: NavOptions?) {
@@ -59,11 +59,10 @@ class FragmentSplash : Fragment() {
         }
 
         if (currenUser == null) {
-            findNavController().navigate(R.id.fragment_login)
             (activity as MainActivity).hideBottomNavigation()
+            completeNavigation(R.id.fragment_login, navOptions)
             return
         }
-
         (activity as MainActivity).navigateBasedOnRole(currenUser.uid, navOptions)
     }
 

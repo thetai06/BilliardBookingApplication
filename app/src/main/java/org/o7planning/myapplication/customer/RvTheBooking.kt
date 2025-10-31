@@ -8,9 +8,11 @@ import org.o7planning.myapplication.data.dataTableManagement
 import org.o7planning.myapplication.databinding.ItemTheBookingBinding
 
 class RvTheBooking(val list: ArrayList<dataTableManagement>) : RecyclerView.Adapter<RvTheBooking.viewHolderItem>() {
+
     inner class viewHolderItem(val binding: ItemTheBookingBinding) : RecyclerView.ViewHolder(binding.root)
 
     var onClickCancelOrder: ((dataTableManagement, Int) -> Unit)? = null
+    var onClickItemOrder: ((dataTableManagement,Int) -> Unit)? = null
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -35,20 +37,23 @@ class RvTheBooking(val list: ArrayList<dataTableManagement>) : RecyclerView.Adap
             timeRealtime.text = "Thời gian: ${data.startTime} - ${data.endTime}"
             address.text = data.addressClb
             personRealtime.text = "${data.person} Người"
-            statusRealtime.text = data.status
-            manyRealtime.text = data.money
-            statusRealtime.setText(data.status)
-            if (data.status == "Đã xác nhận"){
-                statusRealtime.setBackgroundResource(R.drawable.bg_btn_status_confirm)
-            }else if (data.status =="Đang chơi"){
+            statusRealtime.text = data.paymentStatus
+            manyRealtime.text = data.money.toString()
+            statusRealtime.setText(data.paymentStatus)
+            if (data.paymentStatus == "Đã thanh toán"){
+                statusRealtime.setBackgroundResource(R.drawable.bg_status_green)
+            }else if (data.paymentStatus =="Đang chơi"){
                 statusRealtime.setBackgroundResource(R.drawable.bg_start_game)
-            }else if (data.status == "Chờ xử lý"){
-                statusRealtime.setBackgroundResource(R.drawable.bg_startic)
+            }else if (data.paymentStatus == "Chờ thanh toán VietQR" || data.paymentStatus == "Chờ thanh toán VNPay"){
+                statusRealtime.setBackgroundResource(R.drawable.bg_status_yellow)
             }
         }
         holder.itemView.setOnLongClickListener {
             onClickCancelOrder?.invoke(data,position)
             return@setOnLongClickListener true
+        }
+        holder.itemView.setOnClickListener {
+            onClickItemOrder?.invoke(data,position)
         }
 
 

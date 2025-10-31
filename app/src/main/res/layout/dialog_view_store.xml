@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:maxWidth="400dp"
     app:cardCornerRadius="20dp"
+    android:background="@drawable/bg_dialog"
     app:cardElevation="8dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -57,10 +58,12 @@
 
         <TextView
             android:id="@+id/locationBar"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="@dimen/dimen_txt_16sp"
             android:textColor="@color/colorMain"
+            app:layout_constraintWidth_percent="0.65"
+            android:maxLines="2"
             android:padding="5dp"
             android:text="123 Nguyễn Trãi, Quận Thanh Xuân, TP.HN"
             app:layout_constraintLeft_toRightOf="@+id/ivLocation"
@@ -159,6 +162,19 @@
             android:text="Quán bi-a với không gian thoáng mát, phục vụ tận tâm. Đội ngũ nhân viên chuyên nghiệp, thân thiện."
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tableBar"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDirections"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:minWidth="100dp"
+            android:textColor="@color/ColorWhite"
+            android:textAllCaps="false"
+            app:layout_constraintWidth_percent="0.3"
+            android:text="Chỉ đường"
+            android:background="@drawable/bg_btn_add"
+            app:layout_constraintTop_toBottomOf="@+id/nameBar"
+            app:layout_constraintRight_toRightOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

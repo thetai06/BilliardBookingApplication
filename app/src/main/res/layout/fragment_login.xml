@@ -6,21 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".admin.FragmentLogin">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-        <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".admin.FragmentLogin">
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/boxHeadLogin"
@@ -56,14 +44,13 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/boxInputLogIn"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:layout_marginTop="-30dp"
                     android:background="@drawable/bg_white"
-                    android:paddingBottom="95dp"
                     app:layout_constraintLeft_toLeftOf="@+id/boxHeadLogin"
                     app:layout_constraintRight_toRightOf="@+id/boxHeadLogin"
                     app:layout_constraintTop_toBottomOf="@+id/boxHeadLogin"
-                    >
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <TextView
                         android:id="@+id/txtEmail"
@@ -163,54 +150,35 @@
                         app:layout_constraintLeft_toRightOf="@+id/txtDescLogin"
                         app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
 
-                    <TextView
-                        android:id="@+id/txtOr"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:text="@string/txt_or"
-                        app:layout_constraintLeft_toLeftOf="@+id/txtDescLogin"
-                        app:layout_constraintRight_toRightOf="@+id/btnToSignUp"
-                        app:layout_constraintTop_toBottomOf="@+id/btnToSignUp" />
+<!--                    <TextView-->
+<!--                        android:id="@+id/txtOr"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="20dp"-->
+<!--                        android:text="@string/txt_or"-->
+<!--                        app:layout_constraintLeft_toLeftOf="@+id/txtDescLogin"-->
+<!--                        app:layout_constraintRight_toRightOf="@+id/btnToSignUp"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/btnToSignUp" />-->
 
-                    <ImageButton
-                        android:id="@+id/btnFacebook"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginLeft="72dp"
-                        android:layout_marginTop="20dp"
-                        android:backgroundTint="@android:color/transparent"
-                        android:src="@drawable/icons8facebook"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/txtOr" />
-
-                    <ImageButton
-                        android:id="@+id/btnTwitter"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginLeft="72dp"
-                        android:layout_marginTop="20dp"
-                        android:backgroundTint="@android:color/transparent"
-                        android:src="@drawable/icons8twitter"
-                        app:layout_constraintLeft_toRightOf="@+id/btnFacebook"
-                        app:layout_constraintTop_toBottomOf="@+id/txtOr" />
-
-                    <ImageButton
-                        android:id="@+id/btnZalo"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginLeft="72dp"
-                        android:layout_marginTop="20dp"
-                        android:backgroundTint="@android:color/transparent"
-                        android:src="@drawable/icons8zalo"
-                        app:layout_constraintLeft_toRightOf="@+id/btnTwitter"
-                        app:layout_constraintTop_toBottomOf="@+id/txtOr" />
-
+<!--                    <androidx.appcompat.widget.AppCompatButton-->
+<!--                        android:id="@+id/btnGoogleLogin"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginHorizontal="30dp"-->
+<!--                        android:layout_marginTop="16dp"-->
+<!--                        android:background="@drawable/bg_dialog"-->
+<!--                        android:drawableStart="@drawable/googleg_standard_color_18"-->
+<!--                        android:drawablePadding="16dp"-->
+<!--                        android:paddingStart="32dp"-->
+<!--                        android:text="Đăng nhập bằng Google"-->
+<!--                        android:textAllCaps="false"-->
+<!--                        android:textColor="#757575"-->
+<!--                        android:textStyle="bold"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/txtOr" />-->
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </ScrollView>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

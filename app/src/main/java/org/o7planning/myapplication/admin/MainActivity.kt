@@ -14,7 +14,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import org.o7planning.myapplication.R
 import org.o7planning.myapplication.databinding.ActivityMainBinding
 
@@ -98,31 +101,45 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
     }
 
     fun navigateBasedOnRole(userId: String, navOptions: NavOptions?) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                val role = document.getString("role")
-                val isOwner = role == "owner"
+        // 1. Khởi tạo và trỏ đến user trong Realtime Database (RTDB)
+        val dbRef = FirebaseDatabase.getInstance().getReference("dataUser").child(userId)
 
-                setupBottomNavigation(isOwner)
+        dbRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val role = snapshot.child("role").getValue(String::class.java)
+                    Log.d("RoleCheck", "User $userId role: $role")
 
-                if (isOwner) {
-                    navController.navigate(R.id.fragment_overview, null, navOptions)
+                    val isManager = role == "manager"
+
+                    setupBottomNavigation(isManager)
+
+                    if (isManager) {
+                        navController.navigate(R.id.fragment_overview, null, navOptions)
+                    } else {
+                        navController.navigate(R.id.fragment_home, null, navOptions)
+                    }
                 } else {
-                    navController.navigate(R.id.fragment_home, null, navOptions)
+                    Log.e("RoleCheck", "User $userId not found in dataUser RTDB. Logging out.")
+                    mAuth.signOut()
+                    hideBottomNavigation()
+                    navController.navigate(R.id.fragment_login)
                 }
             }
-            .addOnFailureListener {
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("RoleCheck", "Failed to read role from RTDB: ${error.message}")
                 mAuth.signOut()
                 hideBottomNavigation()
                 navController.navigate(R.id.fragment_login)
             }
+        })
     }
 
 
-    fun setupBottomNavigation(isOwner: Boolean) {
+    fun setupBottomNavigation(isManager: Boolean) {
         binding.bottomNavigation.menu.clear()
-        if (isOwner) {
+        if (isManager) {
             binding.bottomNavigation.inflateMenu(R.menu.owner_menu)
         } else {
             binding.bottomNavigation.inflateMenu(R.menu.customer_menu)

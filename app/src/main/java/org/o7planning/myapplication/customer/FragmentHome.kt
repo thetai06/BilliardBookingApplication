@@ -5,14 +5,20 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,12 +34,16 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.journeyapps.barcodescanner.BarcodeEncoder
 import org.o7planning.myapplication.R
 import org.o7planning.myapplication.data.dataOverviewOwner
 import org.o7planning.myapplication.data.dataStore
 import org.o7planning.myapplication.data.dataStoreDisplayInfo // Đảm bảo bạn import đúng class này
 import org.o7planning.myapplication.data.dataTableManagement
 import org.o7planning.myapplication.databinding.FragmentHomeBinding
+import org.w3c.dom.Text
+import android.os.Handler
+import android.os.Looper
 
 
 class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
@@ -60,7 +70,6 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
     private lateinit var overviewsListener: ValueEventListener
     private lateinit var bookingListener: ValueEventListener
 
-    // --- MỚI: Thêm các biến cho chức năng vị trí ---
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -116,8 +125,13 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
 
         listBooking = arrayListOf()
         bookingAdapter = RvTheBooking(listBooking)
+
+        bookingAdapter.onClickItemOrder = { item, _ ->
+            handleClickTheBooking(item)
+        }
+
         bookingAdapter.onClickCancelOrder = { item, _ ->
-            if (item.status == "Chờ xử lý") {
+            if (item.paymentStatus == "Chờ thanh toán VietQR" || item.paymentStatus == "Chờ thanh toán VNPay" || item.paymentStatus == "Đã thanh toán") {
                 dialogDeleteOrder(item)
             }
         }
@@ -198,11 +212,10 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
                 longitude = store.longitude,
                 profit = overview?.profit ?: 0.0,
                 tableEmpty = overview?.tableEmpty ?: totalTables,
-                pendingBookings = overview?.pendingBookings ?: 0,
-                confirm = overview?.confirm ?: 0,
+                paidBookings = overview?.paidBookings ?: 0,
+                simpleEnding = overview?.simpleEnding ?: 0,
                 tableActive = overview?.tableActive ?: 0,
                 totalBooking = overview?.totalBooking ?: 0,
-                maintenance = overview?.maintenance ?: 0
             )
             combinedList.add(displayInfo)
         }
@@ -240,6 +253,7 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
             .setView(dialogView)
             .setCancelable(false)
             .create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val nameBar = dialogView.findViewById<TextView>(R.id.nameBar)
         val locationBar = dialogView.findViewById<TextView>(R.id.locationBar)
@@ -249,6 +263,7 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
         val tableBar = dialogView.findViewById<TextView>(R.id.tableBar)
         val desBar = dialogView.findViewById<TextView>(R.id.desBar)
         val btnExit = dialogView.findViewById<ImageButton>(R.id.btnExit)
+        val btnDirections = dialogView.findViewById<Button>(R.id.btnDirections)
 
         lateinit var dialogOverviewListener: ValueEventListener
 
@@ -284,6 +299,14 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
             alertDialog.dismiss()
         }
 
+        btnDirections.setOnClickListener {
+            if (item.latitude != null && item.longitude != null) {
+                launchGoogleMapsDirections(item.latitude!!, item.longitude!!, item.name ?: "CLB Bida")
+            } else {
+                Toast.makeText(requireContext(), "CLB này chưa cập nhật tọa độ", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         alertDialog.show()
     }
 
@@ -313,15 +336,16 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
                     val tempBookingList = mutableListOf<dataTableManagement>()
                     for (bookingSnap in snapshot.children) {
                         val bookingData = bookingSnap.getValue(dataTableManagement::class.java)
-                        if (bookingData != null && bookingData.status in listOf("Chờ xử lý", "Đã xác nhận", "Đang chơi")) {
+                        if (bookingData != null && bookingData.paymentStatus in listOf("Đã thanh toán", "Chờ thanh toán VNPay", "Chờ thanh toán VietQR", "Đang chơi")) {
                             tempBookingList.add(bookingData)
                         }
                     }
                     tempBookingList.sortBy { data ->
-                        when (data.status) {
-                            "Chờ xử lý" -> 0
-                            "Đã xác nhận" -> 1
-                            else -> 2
+                        when (data.paymentStatus) {
+                            "Chờ thanh toán VNPay" -> 0
+                            "Chờ thanh toán VietQR" -> 1
+                            "Đã thanh toán" -> 2
+                            else -> 3
                         }
                     }
                     listBooking.addAll(tempBookingList)
@@ -340,17 +364,172 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
         bookingQuery.addValueEventListener(bookingListener)
     }
 
-    private fun dialogDeleteOrder(item: dataTableManagement) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Huỷ Đặt Bàn")
-            .setMessage("Bạn có chắc chắn muốn huỷ lịch đặt bàn này không?")
-            .setPositiveButton("Đồng ý") { dialog, _ ->
-                deleteOrder(item)
-                dialog.dismiss()
+    private fun handleClickTheBooking(item: dataTableManagement) {
+        when (item.paymentStatus) {
+            "Chờ thanh toán VNPay" -> {
+                if (item.paymentUrl.isNullOrEmpty() || item.id.isNullOrEmpty() || item.money == null) {
+                    Toast.makeText(requireContext(), "Lỗi: Không tìm thấy dữ liệu thanh toán", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                showQrCodeDialog(item.paymentUrl!!, item.id!!, item.money!!)
             }
-            .setNegativeButton("Không") { dialog, _ -> dialog.dismiss() }
-            .create()
-            .show()
+            "Chờ thanh toán VietQR" -> {
+                if (item.qrDataString.isNullOrEmpty() || item.id.isNullOrEmpty() || item.money == null) {
+                    Toast.makeText(requireContext(), "Lỗi: Không tìm thấy dữ liệu QR", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                showVietQrDialog(item.qrDataString!!, item.id!!, item.money!!)
+            }
+        }
+    }
+
+    private fun showQrCodeDialog(paymentUrl: String, orderId: String, amount: Double) {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_qr_payment, null)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+        val qrDialog: AlertDialog = builder.create()
+        qrDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val ivQrCode = dialogView.findViewById<ImageView>(R.id.ivQrCode)
+        val tvAmount = dialogView.findViewById<TextView>(R.id.tvQrAmount)
+        val btnClose = dialogView.findViewById<Button>(R.id.btnClose)
+        val tvStatus = dialogView.findViewById<TextView>(R.id.tvPaymentStatus)
+
+        tvAmount.text = String.format("%.0f VND", amount)
+
+        try {
+            val barcodeEncoder = BarcodeEncoder()
+            val bitmap: Bitmap = barcodeEncoder.encodeBitmap(paymentUrl, com.google.zxing.BarcodeFormat.QR_CODE, 400, 400)
+            ivQrCode.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Lỗi tạo mã QR", Toast.LENGTH_SHORT).show()
+        }
+
+        val paymentStatusListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val paymentStatus = snapshot.child("paymentStatus").getValue(String::class.java)
+
+                if (paymentStatus == "Đã thanh toán") {
+                    tvStatus.text = "Thanh toán thành công!"
+                    tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
+                    btnClose.text = "Hoàn tất"
+
+                    dbRefTheBooking.child(orderId).removeEventListener(this) // Use dbRefTheBooking
+
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        qrDialog.dismiss()
+                        // Không điều hướng, chỉ đóng dialog
+                    }, 3000)
+                } else if (paymentStatus == "FAILED") {
+                    tvStatus.text = "Thanh toán thất bại!"
+                    tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+                    btnClose.text = "Đóng"
+                    dbRefTheBooking.child(orderId).removeEventListener(this) // Use dbRefTheBooking
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("PaymentListener", "Lỗi lắng nghe trạng thái: ${error.message}")
+            }
+        }
+        dbRefTheBooking.child(orderId).addValueEventListener(paymentStatusListener) // Use dbRefTheBooking
+
+        btnClose.setOnClickListener {
+            dbRefTheBooking.child(orderId).removeEventListener(paymentStatusListener) // Use dbRefTheBooking
+            qrDialog.dismiss()
+        }
+
+        qrDialog.show()
+    }
+
+    private fun showVietQrDialog(qrDataString: String, orderId: String, amount: Double) {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_vietqr_payment, null)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+        val qrDialog: AlertDialog = builder.create()
+        qrDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val ivQrCode = dialogView.findViewById<ImageView>(R.id.ivVietQrCode)
+        val tvAmount = dialogView.findViewById<TextView>(R.id.tvVietQrAmount)
+        val btnClose = dialogView.findViewById<Button>(R.id.btnVietQrClose)
+        val tvStatus = dialogView.findViewById<TextView>(R.id.tvVietQrPaymentStatus)
+
+        tvAmount.text = String.format("%.0f VND", amount)
+        tvStatus.text = "Quét mã để thanh toán"
+
+        try {
+            val barcodeEncoder = BarcodeEncoder()
+            val bitmap: Bitmap = barcodeEncoder.encodeBitmap(qrDataString, com.google.zxing.BarcodeFormat.QR_CODE, 400, 400)
+            ivQrCode.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Lỗi tạo mã QR", Toast.LENGTH_SHORT).show()
+            qrDialog.dismiss()
+            return
+        }
+
+        val paymentStatusListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val paymentStatus = snapshot.child("paymentStatus").getValue(String::class.java)
+
+                if (paymentStatus == "Đã thanh toán (VietQR)") {
+                    tvStatus.text = "Thanh toán thành công!"
+                    tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
+                    btnClose.text = "Hoàn tất"
+                    dbRefTheBooking.child(orderId).removeEventListener(this) // Use dbRefTheBooking
+
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(Runnable {
+                        qrDialog.dismiss()
+                        // Không điều hướng, chỉ đóng dialog
+                    }, 3000)
+
+                } else if (paymentStatus == "Thanh toán VietQR thất bại") {
+                    tvStatus.text = "Thanh toán thất bại!"
+                    tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+                    btnClose.text = "Đóng"
+                    dbRefTheBooking.child(orderId).removeEventListener(this) // Use dbRefTheBooking
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("VietQrListener", "Lỗi lắng nghe trạng thái: ${error.message}")
+            }
+        }
+        dbRefTheBooking.child(orderId).addValueEventListener(paymentStatusListener) // Use dbRefTheBooking
+
+        btnClose.setOnClickListener {
+            dbRefTheBooking.child(orderId).removeEventListener(paymentStatusListener) // Use dbRefTheBooking
+            qrDialog.dismiss()
+        }
+
+        qrDialog.show()
+    }
+
+    private fun dialogDeleteOrder(item: dataTableManagement) {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm_delete, null)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+
+        val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirm)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        val alertDialog = builder.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        tvDialogTitle.text = "Huỷ Đặt Bàn"
+        tvDialogMessage.text = "Bạn có chắc chắn muốn huỷ lịch đặt bàn này không?\n Bạn sẽ không được hoàn tiền nếu huỷ đơn!"
+        btnConfirm.setOnClickListener {
+                deleteOrder(item)
+                alertDialog.dismiss()
+        }
+        btnCancel.setOnClickListener {
+            alertDialog.dismiss()
+        }
+        alertDialog.show()
     }
 
     private fun deleteOrder(item: dataTableManagement) {
@@ -373,7 +552,9 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
         when (position) {
             0 -> {
                 val dialogView = layoutInflater.inflate(R.layout.dialog_tour_nament, null)
-                AlertDialog.Builder(requireContext()).setView(dialogView).show()
+                val alertDialog = AlertDialog.Builder(requireContext()).setView(dialogView).show()
+                alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
             }
             else -> Toast.makeText(requireContext(), item.name, Toast.LENGTH_SHORT).show()
         }
@@ -442,7 +623,6 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
         listOutstanding.addAll(sortedClubs)
         outstandingAdapter.notifyDataSetChanged()
 
-        // Xóa nội dung tìm kiếm để tránh xung đột
         binding.searchView.setQuery("", false)
         binding.searchView.clearFocus()
 
@@ -461,6 +641,21 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
             }
             .setNegativeButton("Hủy") { dialog, _ -> dialog.dismiss() }
             .create().show()
+    }
+
+    private fun launchGoogleMapsDirections(latitude: Double, longitude: Double, clubName: String) {
+        // Tạo một chuỗi URI (đường dẫn) theo định dạng của Google Maps
+        // "google.navigation:q=lat,lng" sẽ tự động tìm đường từ vị trí hiện tại
+        val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude")
+        // Tạo Intent với hành động là ACTION_VIEW (xem)
+        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+        // Chỉ định rõ ràng là chúng ta muốn mở ứng dụng Google Maps
+        mapIntent.setPackage("com.google.android.apps.maps")
+        if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivity(mapIntent)
+        } else {
+            Toast.makeText(requireContext(), "Bạn chưa cài đặt Google Maps", Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onDestroyView() {

@@ -35,13 +35,13 @@ class RvHistory(val list: List<dataTableManagement>) :
             timeRealtime.text = "Thời gian: ${data.startTime} - ${data.endTime}"
             address.text = data.addressClb
             personRealtime.text = "${data.person} Người"
-            statusRealtime.text = data.status
-            manyRealtime.text = data.money
-            statusRealtime.setText(data.status)
-            if (data.status == "Đã hoàn thành") {
-                statusRealtime.setBackgroundResource(R.drawable.bg_btn_status_confirm)
-            } else if (data.status == "Đã huỷ") {
-                statusRealtime.setBackgroundResource(R.drawable.bg_start_game)
+            statusRealtime.text = data.paymentStatus
+            manyRealtime.text = data.money.toString()
+            statusRealtime.setText(data.paymentStatus)
+            if (data.paymentStatus == "Đã hoàn thành") {
+                statusRealtime.setBackgroundResource(R.drawable.bg_status_green)
+            } else if (data.paymentStatus == "Đã huỷ") {
+                statusRealtime.setBackgroundResource(R.drawable.bg_status_red)
             }
         }
     }

@@ -6,24 +6,26 @@
     android:layout_marginVertical="10dp"
     android:background="@drawable/bg_voucher"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView
+        android:id="@+id/iconVoucher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_xam"
+        android:padding="5dp"
+        android:src="@drawable/icons8voucher48"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
     <TextView
         android:id="@+id/titleVoucher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:textSize="@dimen/dimen_txt_title_22sp"
         android:text="@string/txt_title_voucher"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
-
-    <TextView
-        android:id="@+id/clbVoucher"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:textSize="@dimen/dimen_txt_20sp"
-        android:text="@string/txt_clb_voucher"
-        app:layout_constraintTop_toBottomOf="@+id/titleVoucher"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toRightOf="@+id/iconVoucher"/>
 
     <TextView
         android:id="@+id/dateVoucher"
@@ -32,23 +34,21 @@
         android:layout_marginTop="5dp"
         android:textSize="@dimen/dimen_txt_20sp"
         android:text="@string/txt_date_voucher"
-        app:layout_constraintTop_toBottomOf="@+id/clbVoucher"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@+id/titleVoucher"
+        app:layout_constraintLeft_toLeftOf="@+id/titleVoucher"/>
 
     <TextView
         android:id="@+id/voucherCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_violet"
-        android:backgroundTint="@color/color_xanhnhat"
-        android:textColor="@color/colorMain"
         android:layout_marginTop="5dp"
-        android:paddingVertical="10dp"
+        android:paddingVertical="5dp"
         android:paddingHorizontal="25dp"
         android:textSize="@dimen/dimen_txt_20sp"
         android:text="@string/txt_voucher"
         app:layout_constraintTop_toBottomOf="@+id/dateVoucher"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="@+id/titleVoucher"/>
 
     <Button
         android:id="@+id/copyVoucherCode"
