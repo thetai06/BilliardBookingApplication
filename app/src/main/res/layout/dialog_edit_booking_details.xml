@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    android:layout_margin="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_dialog"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chỉnh Sửa Đơn Hàng"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorMain"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Tên Khách hàng -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tên khách hàng:"
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/edtCustomerName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập tên khách"
+            android:maxLines="1"
+            android:inputType="textCapWords"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Số điện thoại -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Số điện thoại:"
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/edtCustomerPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập SĐT"
+            android:maxLines="1"
+            android:inputType="phone"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- TRƯỜNG MỚI 1: Trạng thái Đơn hàng (Status) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái Đơn hàng:"
+            android:textStyle="bold"/>
+        <Spinner
+            android:id="@+id/spinnerStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:padding="8dp"
+            android:background="@drawable/bg_dialog"
+            android:layout_marginBottom="15dp"/>
+
+        <!-- TRƯỜNG MỚI 2: Trạng thái Thanh toán (PaymentStatus) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái Thanh toán:"
+            android:textStyle="bold"/>
+        <Spinner
+            android:id="@+id/spinnerPaymentStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:padding="8dp"
+            android:background="@drawable/bg_dialog"
+            android:layout_marginBottom="25dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnConfirmBooking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lưu Thay Đổi"
+            android:textColor="@color/ColorWhite"
+            android:background="@drawable/bg_btn_orange"
+            android:padding="12dp"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

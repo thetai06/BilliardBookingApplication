@@ -31,6 +31,45 @@
         app:layout_constraintRight_toRightOf="parent"/>
 
     <TextView
+        android:id="@+id/tvLinePrice"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/colorMain"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvWarningMessage"
+        />
+
+    <TextView
+        android:id="@+id/tvPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="28dp"
+        android:paddingVertical="5dp"
+        android:text="Tổng tiền:"
+        android:textColor="@color/colorMain"
+        android:textSize="@dimen/dimen_txt_title_22sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvWarningMessage"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/tvPriceValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="5dp"
+        android:text="..."
+        android:textColor="@color/colorMain"
+        android:textSize="@dimen/dimen_txt_title_22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btnYes"
+        app:layout_constraintTop_toBottomOf="@+id/tvWarningMessage"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
         android:id="@+id/btnWarningClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,7 +80,7 @@
         android:textSize="@dimen/dimen_txt_title_22sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/btnYes"
-        app:layout_constraintTop_toBottomOf="@+id/tvWarningMessage"
+        app:layout_constraintTop_toBottomOf="@+id/tvPrice"
         app:layout_constraintVertical_bias="1.0" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -55,6 +94,6 @@
         android:background="@drawable/bg_btn_orange"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvWarningMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/tvPrice" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

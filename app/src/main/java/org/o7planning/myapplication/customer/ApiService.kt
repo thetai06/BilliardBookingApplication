@@ -8,59 +8,25 @@ import retrofit2.http.PUT
 import retrofit2.http.DELETE
 import retrofit2.http.Path
 
-data class PreBookCheckRequest(
-    val storeId: String,
-    val dataDate: String,
-    val dataStartTime: String,
-    val dataEndTime: String,
-    val voucherCode: String?
-)
+// ====================================================================
+// DATA CLASSES CHO TIMELINE OWNER (TimelineChartView)
+// ====================================================================
 
-data class PreBookCheckResponse(
-    val available: Boolean, // Còn bàn hay không (tích hợp check_availability)
-    val message: String?,
-    val availableCount: Int? = null,
-    val basePrice: Double, // Giá cơ bản chưa giảm
-    val discountAmount: Double, // Số tiền giảm giá
-    val finalPrice: Double // Tổng tiền cuối cùng
+data class BusyInterval(
+    val startTime: String, // HH:mm
+    val endTime: String    // HH:mm
+)
+// Dữ liệu chi tiết trả về từ Server cho Timeline Owner (3 màu)
+data class DetailedTimelineData(
+    val totalTables: Int,
+    val openingHour: String, // HH:mm
+    val closingHour: String, // HH:mm
+    val busyBookings: List<BusyInterval>
 )
 
 // ====================================================================
-// DATA CLASSES CHO USER MANAGEMENT (AUTH ROUTES: /api/...)
+// DATA CLASSES CHUNG (Đặt bàn, Store)
 // ====================================================================
-
-data class CreateUserRequest(
-    val name: String,
-    val email: String,
-    val phone: String?,
-    val password: String,
-    val role: String,
-    val address: String?,
-    val storeId: String? // Bắt buộc nếu role là 'manager'
-)
-
-data class UpdateUserRequest(
-    val name: String,
-    val phone: String?,
-    val role: String,
-    val address: String?,
-    val storeId: String? // Bắt buộc nếu role là 'manager'
-)
-
-data class UserResponse(
-    val success: Boolean,
-    val message: String,
-    val userId: String? = null // Trả về khi tạo user thành công
-)
-
-// ====================================================================
-// DATA CLASSES CHO ĐẶT BÀN/CLB (STORE & AVAILABILITY ROUTES: /...)
-// ====================================================================
-
-data class TimeSlot(
-    val time: String,
-    val available_tables: Int
-)
 
 data class TimelineRequest(
     val storeId: String,
@@ -81,12 +47,17 @@ data class AvailabilityResponse(
     val message: String?
 )
 
+data class TimeSlot(
+    val time: String,
+    val available_tables: Int
+)
+
 data class StoreRequest(
     val name: String,
     val location: String,
     val phoneNumber: String,
     val email: String,
-    val tableNumber: String, // Chú ý: Server Node.js của bạn chấp nhận String, nhưng nên là Int
+    val tableNumber: String,
     val des: String?,
     val openingHour: String,
     val closingHour: String,
@@ -105,12 +76,53 @@ data class AddStoreResponse(
 )
 
 // ====================================================================
-// DATA CLASSES CHO THANH TOÁN (PAYMENT ROUTES: /...)
+// DATA CLASSES CHO CHỨC NĂNG KHÁC (PreCheck, User, Payment)
 // ====================================================================
+
+data class PreBookCheckRequest(
+    val storeId: String,
+    val dataDate: String,
+    val dataStartTime: String,
+    val dataEndTime: String,
+    val voucherCode: String?
+)
+
+data class PreBookCheckResponse(
+    val available: Boolean,
+    val message: String?,
+    val availableCount: Int? = null,
+    val basePrice: Double,
+    val discountAmount: Double,
+    val finalPrice: Double
+)
+
+data class CreateUserRequest(
+    val name: String,
+    val email: String,
+    val phone: String?,
+    val password: String,
+    val role: String,
+    val address: String?,
+    val storeId: String?
+)
+
+data class UpdateUserRequest(
+    val name: String,
+    val phone: String?,
+    val role: String,
+    val address: String?,
+    val storeId: String?
+)
+
+data class UserResponse(
+    val success: Boolean,
+    val message: String,
+    val userId: String? = null
+)
 
 data class PaymentRequest(
     val amount: Double,
-    val orderId: String, // Mã đơn hàng (booking key)
+    val orderId: String,
     val bankCode: String? = null,
     val language: String? = null
 )
@@ -122,16 +134,40 @@ data class PaymentRequestUpgrade(
 )
 
 data class PaymentResponse(
-    val paymentUrl: String // URL VNPAY để redirect người dùng
+    val paymentUrl: String
 )
 
 data class VietQrResponse(
-    val qrDataString: String // Chuỗi dữ liệu QR Code
+    val qrDataString: String
 )
+
+// ====================================================================
+// INTERFACE API SERVICE
+// ====================================================================
 
 interface ApiService {
 
-    // --- API QUẢN LÝ USER (Prefix: /api) ---
+    // --- API TIMELINE OWNER (3 MÀU) ---
+    @POST("/get_detailed_timeline_data")
+    fun getDetailedTimelineData(@Body request: TimelineRequest): Call<DetailedTimelineData>
+
+    // --- API TÍNH NĂNG CHÍNH (Store & Booking) ---
+    @POST("/check_availability")
+    fun checkAvailability(@Body request: AvailabilityRequest): Call<AvailabilityResponse>
+
+    @POST("/get_availability_timeline")
+    fun getAvailabilityTimeline(@Body request: TimelineRequest): Call<List<TimeSlot>>
+
+    @POST("/add_store")
+    fun addStore(
+        @Header("Authorization") idToken: String,
+        @Body storeData: StoreRequest
+    ): Call<AddStoreResponse>
+
+    @POST("/pre_book_check")
+    fun preBookCheck(@Body request: PreBookCheckRequest): Call<PreBookCheckResponse>
+
+    // --- API QUẢN LÝ USER ---
     @POST("/api/createUser")
     fun createUser(
         @Header("Authorization") idToken: String,
@@ -151,10 +187,7 @@ interface ApiService {
         @Path("id") userId: String
     ): Call<UserResponse>
 
-    @POST("/pre_book_check")
-    fun preBookCheck(@Body request: PreBookCheckRequest): Call<PreBookCheckResponse>
-
-    // --- API THANH TOÁN (Prefix: /) ---
+    // --- API THANH TOÁN ---
     @POST("/create_payment_url")
     fun createPaymentUrl(@Body request: PaymentRequest): Call<PaymentResponse>
 
@@ -163,17 +196,4 @@ interface ApiService {
 
     @POST("/create_vietqr_data")
     fun createVietQrData(@Body request: PaymentRequest): Call<VietQrResponse>
-
-    // --- API CLB & ĐẶT BÀN (Prefix: /) ---
-    @POST("/check_availability")
-    fun checkAvailability(@Body request: AvailabilityRequest): Call<AvailabilityResponse>
-
-    @POST("/get_availability_timeline")
-    fun getAvailabilityTimeline(@Body request: TimelineRequest): Call<List<TimeSlot>>
-
-    @POST("/add_store")
-    fun addStore(
-        @Header("Authorization") idToken: String,
-        @Body storeData: StoreRequest
-    ): Call<AddStoreResponse>
 }

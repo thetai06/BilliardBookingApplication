@@ -101,50 +101,70 @@ class FragmentOverview : Fragment() {
 
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                // Biến đếm cần thiết cho giao diện:
                 var totalBookingsForDay = 0
-                var paidBookings = 0
-                var simpleEndingCount = 0
-                var playingCount = 0
-                var completedCount = 0
+                var ownerCompletedCount = 0
+                var fullyPaidCount = 0
+                var currentlyPlayingCount = 0
                 var totalRevenue = 0.0
 
                 if (snapshot.exists()) {
                     for (bookingSnap in snapshot.children) {
                         val booking = bookingSnap.getValue(dataTableManagement::class.java)
+                        val startTime = booking?.startTime.toString()
+                        if (startTime != null) {
+                            try {
+                                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                                val parsedTime = timeFormat.parse(startTime)
 
+                                val calendar = Calendar.getInstance()
+                                calendar.time = parsedTime!!
+                                calendar.add(Calendar.MINUTE, 5) // Cộng thêm 5 phút
+
+                            } catch (e: Exception) {
+                                Log.e("DailyStats", "Lỗi phân tích cú pháp thời gian: ${e.message}")
+                            }
+                        }
                         if (booking != null && booking.dateTime == todayDate) {
+
+                            // 1. TỔNG DOANH THU & TỔNG ĐƠN HÔM NAY
                             totalRevenue += booking.money
                             totalBookingsForDay++
-                            when (booking.paymentStatus) {
-                                "Đã thanh toán" -> {
-                                    paidBookings++
-                                }
-                                "Đã hoàn thành(owner)" -> {
-                                    simpleEndingCount++
-                                    completedCount++
-                                }
-                                "Đang chơi" -> {
-                                    playingCount++
-                                }
-                                "Đã hoàn thành" -> {
-                                    completedCount++
-                                }
+
+                            // 2. ĐÃ THANH TOÁN
+                            if (booking.paymentStatus == "Đã thanh toán") {
+                                fullyPaidCount++
                             }
+
+                            // 3. CHỦ CHI NHÁNH HOÀN THÀNH ĐƠN (status = "Đã hoàn thành(owner)")
+                            if (booking.status == "Đã hoàn thành(owner)") {
+                                ownerCompletedCount++
+                            }
+
+                            // 4. ĐANG HOẠT ĐỘNG (status = "Đang chơi")
+                            if (booking.status == "Đang chơi") {
+                                currentlyPlayingCount++
+                            }
+
+
                         }
                     }
                 }
 
-                val tableEmpty = totalTables - playingCount
+                // 5. TÍNH BÀN TRỐNG
+                val tableEmpty = totalTables - currentlyPlayingCount
 
+                // 6. TỔNG BÀN (Lấy trực tiếp từ dữ liệu store)
                 val overviewDataMap = mapOf<String, Any>(
                     "storeId" to currentStoreId,
                     "ownerId" to (ownerId ?: ""),
                     "profit" to totalRevenue,
                     "tableEmpty" to tableEmpty,
-                    "paidBookings" to paidBookings,
-                    "simpleEnding" to simpleEndingCount,
-                    "tableActive" to playingCount,
                     "totalBooking" to totalBookingsForDay,
+                    "paidBookings" to fullyPaidCount,          // Đã thanh toán
+                    "simpleEnding" to ownerCompletedCount,     // Chủ chi nhánh hoàn thành
+                    "tableActive" to currentlyPlayingCount,    // Đang hoạt động
+                    // Giữ lại các trường cũ trong dataOverviewOwner nếu cần thiết
                 )
 
                 dbRefOverview.child(currentStoreId).updateChildren(overviewDataMap)
@@ -235,10 +255,13 @@ class FragmentOverview : Fragment() {
 
             val displayInfo = dataStoreDisplayInfo(
                 storeId = store.storeId, ownerId = store.ownerId, name = store.name, address = store.address,
-                tableNumber = store.tableNumber, profit = overview?.profit ?: 0.0,
-                tableEmpty = overview?.tableEmpty ?: totalTables,
-                paidBookings = overview?.paidBookings ?: 0, simpleEnding = overview?.simpleEnding ?: 0,
-                tableActive = overview?.tableActive ?: 0, totalBooking = overview?.totalBooking ?: 0,
+                tableNumber = store.tableNumber, // Tổng bàn
+                profit = overview?.profit ?: 0.0, // Doanh thu
+                tableEmpty = overview?.tableEmpty ?: totalTables, // Bàn trống
+                paidBookings = overview?.paidBookings ?: 0, // Đã thanh toán
+                simpleEnding = overview?.simpleEnding ?: 0, // Chủ chi nhánh hoàn thành
+                tableActive = overview?.tableActive ?: 0, // Đang hoạt động
+                totalBooking = overview?.totalBooking ?: 0, // Tổng đơn đặt bàn
             )
             listOverviewDisplay.add(displayInfo)
         }

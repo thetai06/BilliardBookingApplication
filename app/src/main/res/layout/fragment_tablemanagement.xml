@@ -65,22 +65,39 @@
                 <LinearLayout
                     android:id="@+id/llFilterGroup"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="35dp"
                     android:orientation="horizontal">
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnFilterStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Trạng thái"
+                        android:text="Trạng thái ĐH"
                         android:drawablePadding="4dp"
                         android:textSize="14sp"
+                        android:textAllCaps="false"
                         android:layout_marginEnd="8dp"
                         style="@style/Widget.AppCompat.Button.Borderless"
                         android:background="@drawable/bg_dialog"
                         android:textColor="@color/ColorBalck"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"/>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnFilterPaymentStatus"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_dialog"
+                        android:drawableStart="@drawable/icons8watch30"
+                        android:textAllCaps="false"
+                        android:drawablePadding="4dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:text="Trạng thái TT"
+                        android:textColor="@color/ColorBalck"
+                        android:textSize="14sp" />
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnFilterDate"
@@ -89,6 +106,7 @@
                         android:text="Ngày"
                         android:drawableStart="@drawable/icons8calendar24"
                         android:drawablePadding="4dp"
+                        android:textAllCaps="false"
                         android:textSize="14sp"
                         android:layout_marginEnd="8dp"
                         style="@style/Widget.AppCompat.Button.Borderless"
@@ -96,21 +114,6 @@
                         android:textColor="@color/ColorBalck"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"/>
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btnFilterTime"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/bg_dialog"
-                        android:drawableStart="@drawable/icons8watch30"
-                        android:drawablePadding="4dp"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:text="Giờ"
-                        android:textColor="@color/ColorBalck"
-                        android:textSize="14sp" />
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnClearFilters"
@@ -120,6 +123,7 @@
                         android:drawableStart="@drawable/icons8delete35"
                         android:drawableTint="@color/red"
                         android:drawablePadding="4dp"
+                        android:textAllCaps="false"
                         android:textSize="14sp"
                         android:textColor="@color/red"
                         android:background="@drawable/bg_dialog"
@@ -129,15 +133,89 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
+            <TextView
+                android:id="@+id/tvTimelineTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trạng thái Bàn Trống (Timeline)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/hsvFilters"/>
+
+            <LinearLayout
+                android:id="@+id/llTimelineHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/tvTimelineTitle">
+
+                <TextView
+                    android:id="@+id/tvTimelineDateLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ngày:"
+                    android:textSize="14sp"
+                    android:paddingEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/tvTimelineDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chọn Ngày"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_dialog"
+                    android:textColor="@color/colorMain"
+                    android:drawableStart="@drawable/icons8calendar24"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    tools:text="01/11/2025"/>
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:id="@+id/hsvTimeline"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/llTimelineHeader"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent">
+
+                <org.o7planning.myapplication.Owner.TimelineChartView
+                    android:id="@+id/timelineChartView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:minWidth="1000dp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingTop="10dp"
+                    android:background="@drawable/bg_xanh" />
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/tvOrderListTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Danh sách Đơn Đặt Bàn"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/hsvTimeline"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTableManagement"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/hsvFilters"
                 app:layout_constraintBottom_toBottomOf="parent"
-                tools:listitem="@layout/item_table_management"/>
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvOrderListTitle"
+                app:layout_constraintVertical_bias="1.0"
+                tools:listitem="@layout/item_table_management" />
 
             <TextView
                 android:id="@+id/tvNoData"

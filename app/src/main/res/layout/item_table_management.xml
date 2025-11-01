@@ -1,141 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="10dp"
-    android:layout_marginVertical="10dp"
-    android:background="@drawable/bg_voucher"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
-    <TextView
-        android:id="@+id/name_Realtime"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:textStyle="bold"
-        android:text="Tổng Tài Bá đạo - 08278948"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:padding="12dp">
 
-    <ImageView
-        android:id="@+id/iv_Time_RealTime"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/icons8calendar48"
-        app:layout_constraintRight_toLeftOf="@+id/time_Realtime"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_Realtime"/>
-    <TextView
-        android:id="@+id/time_Realtime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:text="Hôm nay 20:00 - 2 giờ"
-        app:layout_constraintLeft_toRightOf="@+id/iv_Time_RealTime"
-        app:layout_constraintTop_toBottomOf="@+id/name_Realtime"/>
+        <TextView
+            android:id="@+id/tvCustomerName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Tên khách - ID ĐH"
+            android:textColor="@color/ColorBalck"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/tvStatusBadge"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/ivaddress"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/icons8_location_50"
-        app:layout_constraintRight_toLeftOf="@+id/time_Realtime"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/time_Realtime"/>
-    <TextView
-        android:id="@+id/address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:maxWidth="200dp"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:text="Địa chỉ cơ sở"
-        app:layout_constraintLeft_toRightOf="@+id/ivaddress"
-        app:layout_constraintTop_toBottomOf="@+id/time_Realtime"/>
+        <!-- HÀNG 2: Giờ và Địa điểm (Rút gọn) -->
+        <TextView
+            android:id="@+id/tvTimeAndLocation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:drawableStart="@drawable/icons8watch30"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:text="13:50 - 22:37 | Juice bar..."
+            android:textSize="14sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintEnd_toStartOf="@+id/tvStatusBadge"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvCustomerName" />
 
-    <ImageView
-        android:id="@+id/iv_Person"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/icons8group48"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/person_Realtime"
-        app:layout_constraintTop_toBottomOf="@+id/address"/>
-    <TextView
-        android:id="@+id/person_Realtime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:text="4 người chơi"
-        app:layout_constraintLeft_toRightOf="@+id/iv_Person"
-        app:layout_constraintTop_toBottomOf="@+id/address"/>
+        <!-- Badge Trạng thái Đơn hàng (Đang chơi / Đã hoàn thành) -->
+        <TextView
+            android:id="@+id/tvStatusBadge"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:background="@drawable/bg_btn_confirm"
+            android:backgroundTint="@color/red"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_Money"
-        android:layout_width="30dp"
-        android:layout_height="25dp"
-        android:src="@drawable/icons8dollarcoins40"
-        app:layout_constraintTop_toBottomOf="@+id/iv_Person"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        <Button
+            android:id="@+id/btnDetail"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:paddingHorizontal="12dp"
+            android:text="XEM CHI TIẾT"
+            android:textColor="@color/colorMain"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTimeAndLocation" />
 
-    <TextView
-        android:id="@+id/many_Realtime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:text="100.000 VNĐ"
-        app:layout_constraintLeft_toRightOf="@+id/iv_Money"
-        app:layout_constraintTop_toBottomOf="@+id/person_Realtime"/>
 
-    <TextView
-        android:id="@+id/statusTableManagement"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Đã xác nhận"
-        android:paddingHorizontal="7dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:paddingVertical="2dp"
-        android:textColor="#002809"
-        android:textSize="11sp"
-        android:textAllCaps="true"
-        android:background="@drawable/bg_btn_status_confirm"
-        app:layout_constraintTop_toBottomOf="@+id/address"
-        app:layout_constraintRight_toRightOf="parent"
-        />
+        <Button
+            android:id="@+id/btnComplete"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginEnd="8dp"
+            android:text="HOÀN THÀNH"
+            android:textSize="14sp"
+            android:textColor="@color/ColorWhite"
+            android:backgroundTint="@color/green"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/btnDetail"
+            app:layout_constraintTop_toTopOf="@+id/btnDetail" />
 
-    <TextView
-        android:id="@+id/paymentStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Chưa thanh toán"
-        android:paddingHorizontal="7dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:paddingVertical="2dp"
-        android:textColor="#002809"
-        android:backgroundTint="#ffca54"
-        android:textSize="11sp"
-        android:textAllCaps="true"
-        android:background="@drawable/bg_btn_status_confirm"
-        app:layout_constraintTop_toBottomOf="@+id/statusTableManagement"
-        app:layout_constraintRight_toRightOf="parent"
-        />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnStatus"
-        android:layout_width="100dp"
-        android:layout_height="30dp"
-        android:paddingHorizontal="5dp"
-        android:textSize="10sp"
-        android:layout_marginRight="5dp"
-        android:background="@drawable/bg_btn_confirm"
-        android:textColor="@color/ColorWhite"
-        android:text="Hoàn thành"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/time_Realtime"
-        />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

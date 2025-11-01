@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -49,9 +50,9 @@ import org.o7planning.myapplication.R
 import org.o7planning.myapplication.admin.ApiService
 import org.o7planning.myapplication.admin.AvailabilityRequest
 import org.o7planning.myapplication.admin.AvailabilityResponse
+import org.o7planning.myapplication.admin.DetailedTimelineData
 import org.o7planning.myapplication.admin.PaymentRequest
 import org.o7planning.myapplication.admin.PaymentResponse
-import org.o7planning.myapplication.admin.TimeSlot
 import org.o7planning.myapplication.admin.VietQrResponse
 import org.o7planning.myapplication.data.dataStore
 import org.o7planning.myapplication.data.dataTableManagement
@@ -60,12 +61,11 @@ import org.o7planning.myapplication.databinding.FragmentBooktableBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 class FragmentBooktable : Fragment(), onOrderClickListener {
 
@@ -80,7 +80,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     private lateinit var displayedStoreList: ArrayList<dataStore>
 
     private lateinit var storeAdapter: RvClbBia
-    private lateinit var timeSlotAdapter: TimeSlotAdapter
 
     private lateinit var mAuth: FirebaseAuth
     private var userId: String? = null
@@ -105,9 +104,11 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     private var discount: Double? = 0.0
     private var appliedVoucherValue: String? = null
 
-    private var availabilityTimeline = listOf<TimeSlot>()
-    private var selectedStartTimeSlot: TimeSlot? = null
-    private var selectedEndTimeSlot: TimeSlot? = null
+    // 🌟 BIẾN: LƯU TRỮ DỮ LIỆU TIMELINE CHI TIẾT
+    private var detailedTimelineData: DetailedTimelineData? = null
+
+    // 🌟 KHAI BÁO THIẾU
+    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     private lateinit var binding: FragmentBooktableBinding
 
@@ -149,11 +150,23 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
         loadUserinformation()
 
+        // 🌟 SET NGÀY MẶC ĐỊNH
+        val today = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Calendar.getInstance().time)
+        binding.tvDate.text = today
+        dataDate = today
+
         boxSelectDate()
         boxSelectPeopel()
-        setupTimeSlotRecyclerView()
         boxSelectOutstandingCLB()
         setupVoucherInteraction()
+
+        // 🌟 ẨN TIMELINE VIEW BAN ĐẦU
+        binding.hsvTimeline.visibility = View.GONE
+
+        // 🌟 LOGIC CHỌN GIỜ ĐÃ SỬA
+        binding.textViewTimeStart.setOnClickListener { showTimePickerDialog(true) }
+        binding.textViewTimeEnd.setOnClickListener { showTimePickerDialog(false) }
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         binding.btnFindNearby.setOnClickListener { requestLocationAndSort() }
@@ -170,6 +183,189 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         }
 
         updatePrice()
+    }
+
+    private fun showTimePickerDialog(isStartTime: Boolean) {
+        // Mục đích: Hiển thị TimePickerDialog và xử lý logic chọn giờ hợp lệ (tối thiểu 30 phút, không quá khứ + 5 phút).
+        if (storeId == null || dataDate == null) {
+            Toast.makeText(requireContext(), "Vui lòng chọn CLB và Ngày trước.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val cal = Calendar.getInstance()
+        val today = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(cal.time)
+        val isToday = dataDate == today
+
+        var defaultHour = cal.get(Calendar.HOUR_OF_DAY)
+        var defaultMinute = cal.get(Calendar.MINUTE)
+
+        // Lấy giờ hoạt động của CLB (HH:mm)
+        val ohStr = openingHour
+        val chStr = closingHour
+        if (ohStr == null || chStr == null) {
+            Toast.makeText(requireContext(), "Không thể tải giờ hoạt động của CLB.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Nếu đã có giờ, dùng giờ đó để đặt mặc định cho Dialog
+        val currentSelectedTime = if (isStartTime) dataStartTime else dataEndTime
+        if (currentSelectedTime != null) {
+            val parts = currentSelectedTime.split(":")
+            if (parts.size == 2) {
+                defaultHour = parts[0].toIntOrNull() ?: defaultHour
+                defaultMinute = parts[1].toIntOrNull() ?: defaultMinute
+            }
+        } else {
+            // Nếu chưa có giờ, làm tròn phút đến 5 phút gần nhất
+            defaultMinute = (defaultMinute / 5) * 5
+        }
+
+        // Tạo TimePickerDialog
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+            // Làm tròn phút tới bội số của 5
+            val roundedMinute = (minute / 5).toFloat().roundToInt() * 5
+            val selectedTimeStr = String.format(Locale.getDefault(), "%02d:%02d", hour, roundedMinute)
+
+            val selectedCalendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, roundedMinute)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+            // 1. KIỂM TRA CHẶN GIỜ NGOÀI HOẠT ĐỘNG
+            val isTimeValid: Boolean = if (ohStr <= chStr) {
+                // Trường hợp bình thường (08:00 - 22:00)
+                selectedTimeStr >= ohStr && selectedTimeStr <= chStr
+            } else {
+                // Trường hợp qua đêm (23:00 - 04:00)
+                selectedTimeStr >= ohStr || selectedTimeStr <= chStr
+            }
+
+            if (!isTimeValid) {
+                Toast.makeText(requireContext(), "Giờ chọn ($selectedTimeStr) nằm ngoài giờ hoạt động (${ohStr} - ${chStr}).", Toast.LENGTH_LONG).show()
+                return@OnTimeSetListener
+            }
+
+            // 2. CHUẨN HÓA NGÀY (QUAN TRỌNG CHO VIỆC TÍNH DURATION)
+            if (ohStr > chStr && selectedTimeStr <= chStr) {
+                // Nếu CLB hoạt động qua đêm và giờ chọn nằm trong khoảng đóng cửa (ví dụ 01:00) -> set thành ngày mai
+                selectedCalendar.add(Calendar.DAY_OF_YEAR, 1)
+            }
+            // Nếu không phải hôm nay và có chọn ngày, set ngày cho Calendar (chủ yếu cho tính duration End Time)
+            if (!isToday && dataDate != null) {
+                try {
+                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    val selectedDateObj = sdf.parse(dataDate!!)!!
+                    selectedCalendar.time = selectedDateObj
+                    selectedCalendar.set(Calendar.HOUR_OF_DAY, hour)
+                    selectedCalendar.set(Calendar.MINUTE, roundedMinute)
+                } catch (e: Exception) {
+                    Log.e("TimePicker", "Lỗi parse ngày cho duration: ${e.message}")
+                }
+            }
+
+
+            if (isStartTime) {
+                // --- LOGIC GIỜ BẮT ĐẦU: CHẶN QUÁ KHỨ VÀ CỘNG THÊM 5 PHÚT ---
+                if (isToday) {
+                    val minValidTime = Calendar.getInstance().apply { add(Calendar.MINUTE, 5) }
+
+                    if (selectedCalendar.before(minValidTime)) {
+                        val formattedMinTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(minValidTime.time)
+                        Toast.makeText(requireContext(), "Giờ bắt đầu phải sau ${formattedMinTime} (tối thiểu 5 phút sau hiện tại).", Toast.LENGTH_LONG).show()
+                        return@OnTimeSetListener
+                    }
+                }
+
+                dataStartTime = selectedTimeStr
+                binding.textViewTimeStart.text = dataStartTime
+
+                // Reset giờ kết thúc nếu có xung đột (End <= Start) HOẶC THỜI GIAN CHỌN < 30 PHÚT
+                if (dataEndTime != null) {
+                    val minEndTimeCal = selectedCalendar.clone() as Calendar
+                    minEndTimeCal.add(Calendar.MINUTE, 30)
+
+                    val endTimeParts = dataEndTime!!.split(":")
+                    val endTimeCal = selectedCalendar.clone() as Calendar
+                    endTimeCal.set(Calendar.HOUR_OF_DAY, endTimeParts[0].toInt())
+                    endTimeCal.set(Calendar.MINUTE, endTimeParts[1].toInt())
+
+                    if (endTimeCal.before(minEndTimeCal)) {
+                        dataEndTime = null
+                        binding.textViewTimeEnd.text = "End time"
+                        Toast.makeText(requireContext(), "Giờ kết thúc đã bị reset vì thời gian thuê tối thiểu 30 phút.", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    dataEndTime = null
+                }
+
+            } else {
+                // --- LOGIC GIỜ KẾT THÚC: TỐI THIỂU 30 PHÚT ---
+                if (dataStartTime == null) {
+                    Toast.makeText(requireContext(), "Vui lòng chọn Giờ bắt đầu trước.", Toast.LENGTH_SHORT).show()
+                    return@OnTimeSetListener
+                }
+
+                val startParts = dataStartTime!!.split(":")
+
+                // 🌟 TÍNH TOÁN DURATION CHÍNH XÁC
+                // Sử dụng thời điểm start/end đã được chuẩn hóa ngày trong selectedCalendarDuration
+                val selectedMoment = selectedCalendar.timeInMillis
+
+                // Cần tính lại startMoment cho cùng ngày/qua đêm logic với End Time
+                val calStart = selectedCalendar.clone() as Calendar
+                calStart.set(Calendar.HOUR_OF_DAY, startParts[0].toInt())
+                calStart.set(Calendar.MINUTE, startParts[1].toInt())
+
+                // Điều chỉnh ngày cho Start Time nếu End Time qua đêm
+                if(selectedCalendar.get(Calendar.DAY_OF_YEAR) > cal.get(Calendar.DAY_OF_YEAR) && ohStr > chStr) {
+                    // Nếu End Time đã qua đêm (ví dụ: ngày mai) và CLB qua đêm, Start phải là ngày hôm nay.
+                    // Logic này phức tạp, ta dùng phương pháp tính khoảng thời gian:
+                    val startMomentParse = try { timeFormat.parse(dataStartTime!!)!!.time } catch (e: Exception) { 0L }
+
+                    var calculatedStartMoment = startMomentParse
+
+                    if(selectedCalendar.get(Calendar.DAY_OF_YEAR) > Calendar.getInstance().get(Calendar.DAY_OF_YEAR)){
+                        val calStartTomorrow = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }
+                        calStartTomorrow.set(Calendar.HOUR_OF_DAY, startParts[0].toInt())
+                        calStartTomorrow.set(Calendar.MINUTE, startParts[1].toInt())
+                        calculatedStartMoment = calStartTomorrow.timeInMillis
+                    }
+
+                    val duration = selectedMoment - calculatedStartMoment
+
+                    if (duration < TimeUnit.MINUTES.toMillis(30)) {
+                        Toast.makeText(requireContext(), "Thời gian thuê tối thiểu 30 phút.", Toast.LENGTH_LONG).show()
+                        return@OnTimeSetListener
+                    }
+
+                } else {
+                    // Trường hợp bình thường hoặc Start/End cùng ngày
+                    val startMomentParse = try { timeFormat.parse(dataStartTime!!)!!.time } catch (e: Exception) { 0L }
+                    val duration = selectedMoment - startMomentParse
+
+                    if (duration < TimeUnit.MINUTES.toMillis(30)) {
+                        Toast.makeText(requireContext(), "Thời gian thuê tối thiểu 30 phút.", Toast.LENGTH_LONG).show()
+                        return@OnTimeSetListener
+                    }
+                }
+
+                dataEndTime = selectedTimeStr
+                binding.textViewTimeEnd.text = dataEndTime
+            }
+
+            updatePrice()
+        }
+
+        val dialog = TimePickerDialog(
+            requireContext(),
+            timeSetListener,
+            defaultHour,
+            defaultMinute,
+            true // 24-hour view
+        )
+        dialog.show()
     }
 
     private fun loadUserinformation() {
@@ -268,6 +464,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
     // Mục đích: Tạo một mã Order ID duy nhất, có tiền tố "BIDA" cho các giao dịch VietQR.
     private fun generateVietQrOrderId(): String {
+        // Mục đích: Tạo một mã Order ID duy nhất, có tiền tố "BIDA" cho các giao dịch VietQR.
         val prefix = "BIDA"
         val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         val randomSuffix = (1..8).map { allowedChars.random() }.joinToString("")
@@ -277,7 +474,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     // Mục đích: Xử lý luồng thanh toán VietQR: tạo đơn hàng, gọi API backend, hiển thị dialog QR.
     private fun executeVietQrPayment(dialog: AlertDialog) {
         val orderId = generateVietQrOrderId()
-        addDataOrder(orderId, "Chờ thanh toán VietQR", "Đang chờ")
+        addDataOrder(orderId, "Chờ thanh toán", "Đang chờ")
 
         dialog.findViewById<Button>(R.id.btnPay)?.isEnabled = false
         dialog.findViewById<Button>(R.id.btnCancel)?.isEnabled = false
@@ -374,7 +571,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             dialog.findViewById<Button>(R.id.btnCancel)?.isEnabled = true
             return
         }
-        addDataOrder(orderId, "Chờ thanh toán VNPay", "Đang chờ")
+        addDataOrder(orderId, "Chờ thanh toán", "Đang chờ")
 
         dialog.findViewById<Button>(R.id.btnPay)?.isEnabled = false
         dialog.findViewById<Button>(R.id.btnCancel)?.isEnabled = false
@@ -617,11 +814,18 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             val datePickerDialog = DatePickerDialog(
                 requireContext(),
                 { _, year, month, dayOfMonth ->
-                    val selectedDate = "$dayOfMonth/${month + 1}/$year"
+                    // ✅ SỬA ĐỔI: Thống nhất dùng SimpleDateFormat cho dd/MM/yyyy
+                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    calendar.set(Calendar.YEAR, year); calendar.set(Calendar.MONTH, month); calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                    val selectedDate = sdf.format(calendar.time)
+
                     binding.tvDate.text = selectedDate
                     selectDate(selectedDate)
                     if (storeId != null) {
-                        fetchAvailabilityTimeline(storeId!!, selectedDate)
+                        // 🌟 GỌI API KHI NGÀY THAY ĐỔI
+                        fetchDetailedTimelineData(storeId!!, selectedDate)
+                    } else {
+                        Toast.makeText(requireContext(), "Vui lòng chọn Câu Lạc Bộ trước.", Toast.LENGTH_SHORT).show()
                     }
                 },
                 calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
@@ -634,15 +838,14 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     // Mục đích: Cập nhật biến lưu ngày được chọn và hiển thị lên UI, đồng thời reset lựa chọn giờ.
     private fun selectDate(date: String) {
         dataDate = date
-        updateFragmentStateFromSelection()
+        dataStartTime = null
+        dataEndTime = null
     }
 
     // Mục đích: Thiết lập RecyclerView để hiển thị danh sách các CLB Bida.
     private fun boxSelectCLB() {
         storeAdapter = RvClbBia(displayedStoreList, this)
-        binding.rvClbBia.adapter = storeAdapter.apply {
-            onClickItem = { item, _ -> dialogViewStore(item) }
-        }
+        binding.rvClbBia.adapter = storeAdapter
         binding.rvClbBia.layoutManager = GridLayoutManager(requireContext(), 1)
 
         // Lắng nghe dữ liệu từ Firebase
@@ -700,163 +903,62 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         nameCLB = name
         dataLocation = address
 
-        // Tải thông tin chi tiết (số bàn, giá...) cho CLB này
         loadTableCountForSelectedStore(id)
-
-        // Reset lựa chọn giờ khi đổi CLB
-        updateFragmentStateFromSelection()
-
-        // Tải timeline giờ cho CLB mới nếu ngày đã được chọn
-        if (dataDate != null) {
-            fetchAvailabilityTimeline(id, dataDate!!)
-        }
-    }
-
-    // Mục đích: Thiết lập RecyclerView hiển thị timeline giờ và xử lý logic chọn giờ bắt đầu/kết thúc.
-    private fun setupTimeSlotRecyclerView() {
-        timeSlotAdapter = TimeSlotAdapter(requireContext(), availabilityTimeline) { clickedSlot ->
-
-            // 1. Không cho chọn ô "Hết bàn"
-            if (clickedSlot.available_tables <= 0) {
-                Toast.makeText(requireContext(), "Khung giờ này đã hết bàn!", Toast.LENGTH_SHORT).show()
-                return@TimeSlotAdapter
-            }
-
-            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            try {
-                val clickedTime = timeFormat.parse(clickedSlot.time)!!
-
-                // Trường hợp 1: Chưa chọn gì HOẶC click lại vào ô bắt đầu -> Chọn/Reset giờ bắt đầu
-                if (selectedStartTimeSlot == null || clickedSlot == selectedStartTimeSlot) {
-                    if (clickedSlot == selectedStartTimeSlot) { // Click lại -> Hủy chọn
-                        selectedStartTimeSlot = null
-                        selectedEndTimeSlot = null
-                    } else {
-                        selectedStartTimeSlot = clickedSlot
-                        selectedEndTimeSlot = null
-                    }
-                }
-                // Trường hợp 2: Đã chọn giờ bắt đầu -> Chọn giờ kết thúc
-                else {
-                    val startTime = timeFormat.parse(selectedStartTimeSlot!!.time)!!
-
-                    // 2a. Click lại vào ô kết thúc -> Hủy chọn giờ kết thúc
-                    if (clickedSlot == selectedEndTimeSlot) {
-                        selectedEndTimeSlot = null
-                    }
-                    // 2b. Giờ click phải SAU giờ bắt đầu
-                    else if (clickedTime.after(startTime)) {
-                        // KIỂM TRA QUAN TRỌNG: Các ô ở giữa có trống không?
-                        if (isRangeAvailable(selectedStartTimeSlot!!.time, clickedSlot.time)) {
-                            selectedEndTimeSlot = clickedSlot // Hợp lệ -> Chọn làm giờ kết thúc
-                        } else {
-                            Toast.makeText(requireContext(), "Khoảng giờ bạn chọn có khung giờ đã hết bàn!", Toast.LENGTH_LONG).show()
-                            // Không làm gì cả, giữ nguyên lựa chọn cũ
-                        }
-                    }
-                    // 2c. Giờ click TRƯỚC giờ bắt đầu -> Reset và chọn giờ mới làm bắt đầu
-                    else {
-                        selectedStartTimeSlot = clickedSlot
-                        selectedEndTimeSlot = null
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("TimeSelection", "Lỗi khi xử lý click chọn giờ", e)
-                Toast.makeText(requireContext(), "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show()
-                // Reset nếu lỗi
-                selectedStartTimeSlot = null
-                selectedEndTimeSlot = null
-            }
-
-            // Cập nhật giao diện Adapter và trạng thái Fragment
-            timeSlotAdapter.setSelectionRange(selectedStartTimeSlot?.time, selectedEndTimeSlot?.time)
-            updateFragmentStateFromSelection() // Cập nhật dataStartTime, dataEndTime, giá tiền
-        }
-
-        binding.rvTimeLine.layoutManager = GridLayoutManager(requireContext(), 2, GridLayoutManager.HORIZONTAL, false)
-        binding.rvTimeLine.adapter = timeSlotAdapter
-    }
-
-    // Mục đích: Kiểm tra xem tất cả các slot từ startTime đến endTime (bao gồm cả hai) có còn bàn hay không.
-    private fun isRangeAvailable(startTimeStr: String, endTimeStr: String): Boolean {
-        val format = SimpleDateFormat("HH:mm", Locale.getDefault())
-        try {
-            val start = format.parse(startTimeStr)!!
-            val end = format.parse(endTimeStr)!!
-
-            // Duyệt qua tất cả các slot trong timeline
-            for (slot in availabilityTimeline) {
-                val slotTime = format.parse(slot.time)!!
-                // Nếu slot nằm trong khoảng [start, end] VÀ số bàn trống <= 0 -> Không hợp lệ
-                if (!slotTime.before(start) && !slotTime.after(end) && slot.available_tables <= 0) {
-                    return false // Tìm thấy slot hết bàn trong khoảng đã chọn
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("RangeCheck", "Lỗi parse time khi kiểm tra khoảng giờ", e)
-            return false
-        }
-        return true
     }
 
     // Mục đích: Cập nhật các biến dataStartTime, dataEndTime và các TextView hiển thị giờ/giá dựa trên các slot đang được chọn.
     private fun updateFragmentStateFromSelection() {
-        if (selectedStartTimeSlot != null && selectedEndTimeSlot != null) {
-            dataStartTime = selectedStartTimeSlot!!.time
-            try {
-                dataEndTime = selectedEndTimeSlot!!.time
-
-                binding.textViewTimeStart.text = dataStartTime
-                binding.textViewTimeEnd.text = dataEndTime
-            } catch (e: Exception) {
-                Log.e("TimeSet", "Lỗi tính giờ kết thúc", e)
-                dataEndTime = null
-            }
+        // Đã loại bỏ logic TimeSlotAdapter cũ, chỉ cập nhật từ dataStartTime/dataEndTime
+        if (dataStartTime != null && dataEndTime != null) {
+            binding.textViewTimeStart.text = dataStartTime
+            binding.textViewTimeEnd.text = dataEndTime
         } else {
-            dataStartTime = null
-            dataEndTime = null
             binding.textViewTimeStart.text = "Start time"
             binding.textViewTimeEnd.text = "End time"
         }
         updatePrice()
     }
 
-    // Mục đích: Gọi API backend (/get_availability_timeline) để lấy danh sách các khung giờ và số bàn trống tương ứng.
-    private fun fetchAvailabilityTimeline(storeId: String, date: String) {
-        Toast.makeText(context, "Đang tải lịch bàn...", Toast.LENGTH_SHORT).show()
-        // Reset lựa chọn và UI trước khi gọi API
-        selectedStartTimeSlot = null
-        selectedEndTimeSlot = null
-        updateFragmentStateFromSelection()
+    // 🌟 HÀM MỚI: GỌI API LẤY DETAILED TIMELINE VÀ HIỂN THỊ LÊN CHART VIEW
+    private fun fetchDetailedTimelineData(storeId: String, date: String) {
+        Toast.makeText(context, "Đang tải Timeline chi tiết ngày $date...", Toast.LENGTH_SHORT).show()
 
-        val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(60, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .build()
+        // 🌟 HIỂN THỊ HORIZONTAL SCROLL VIEW
+        binding.hsvTimeline.visibility = View.VISIBLE
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api-datn-2025.onrender.com")
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val apiService = retrofit.create(ApiService::class.java)
         val request = TimelineRequest(storeId, date)
 
-        apiService.getAvailabilityTimeline(request).enqueue(object : Callback<List<TimeSlot>> {
-            override fun onResponse(call: Call<List<TimeSlot>>, response: Response<List<TimeSlot>>) {
+        // Lấy giờ hoạt động đã tải từ Firebase (nếu có)
+        val defaultOpen = openingHour ?: "00:00"
+        val defaultClose = closingHour ?: "23:59"
+
+        // Sử dụng RetrofitClient.apiService đã được định nghĩa ở ngoài
+        RetrofitClient.apiService.getDetailedTimelineData(request).enqueue(object : Callback<DetailedTimelineData> {
+            override fun onResponse(call: Call<DetailedTimelineData>, response: Response<DetailedTimelineData>) {
                 if (response.isSuccessful && response.body() != null) {
-                    availabilityTimeline = response.body()!!
-                    timeSlotAdapter.updateData(availabilityTimeline)
+                    response.body()?.let { data ->
+                        // 1. Cập nhật Custom View (TimelineChartView) với dữ liệu chi tiết
+                        binding.timelineChartView.updateDetailedTimeline(data)
+                        detailedTimelineData = data // Lưu lại dữ liệu chi tiết
+                    }
                 } else {
-                    Log.e("TimelineAPI", "Server error fetching timeline: ${response.code()}")
-                    Toast.makeText(context, "Lỗi tải lịch bàn từ server.", Toast.LENGTH_SHORT).show()
-                    timeSlotAdapter.updateData(emptyList())
+                    Log.e("TimelineAPI", "Server error fetching detailed timeline: ${response.code()}")
+                    Toast.makeText(context, "Lỗi tải lịch bàn từ server. Code: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    // Tạo dữ liệu trống để reset View, sử dụng giờ hoạt động đã lưu
+                    binding.timelineChartView.updateDetailedTimeline(
+                        DetailedTimelineData(totalTables = 1, openingHour = defaultOpen, closingHour = defaultClose, busyBookings = emptyList())
+                    )
+                    detailedTimelineData = null
                 }
             }
-            override fun onFailure(call: Call<List<TimeSlot>>, t: Throwable) {
-                Log.e("TimelineAPI", "Network error fetching timeline: ${t.message}")
+            override fun onFailure(call: Call<DetailedTimelineData>, t: Throwable) {
+                Log.e("TimelineAPI", "Network error fetching detailed timeline: ${t.message}")
                 Toast.makeText(context, "Lỗi kết nối khi tải lịch bàn.", Toast.LENGTH_SHORT).show()
-                timeSlotAdapter.updateData(emptyList())
+                // Tạo dữ liệu trống để reset View, sử dụng giờ hoạt động đã lưu
+                binding.timelineChartView.updateDetailedTimeline(
+                    DetailedTimelineData(totalTables = 1, openingHour = defaultOpen, closingHour = defaultClose, busyBookings = emptyList())
+                )
+                detailedTimelineData = null
             }
         })
     }
@@ -874,16 +976,26 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                         priceTable = storeData?.priceTable
                     }
                     updatePrice() // Tính lại giá với thông tin mới
+
+                    // 🌟 KÍCH HOẠT: SAU KHI TẢI GIỜ HOẠT ĐỘNG, GỌI API TIMELINE
+                    dataDate?.let { date ->
+                        fetchDetailedTimelineData(id, date)
+                    }
+
                 } else {
                     Log.w("StoreDetails", "Store $id not found in DB.")
                     totalTables = "0"
-                    openingHour = null
-                    closingHour = null
+                    openingHour = "00:00" // Set giá trị mặc định an toàn
+                    closingHour = "23:59" // Set giá trị mặc định an toàn
                     priceTable = 0
                     updatePrice()
                 }
             }
-            override fun onCancelled(error: DatabaseError) { Log.e("StoreDetails", "DB error loading details for $id: ${error.message}") }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("StoreDetails", "DB error loading details for $id: ${error.message}")
+                openingHour = "00:00" // Set giá trị mặc định an toàn
+                closingHour = "23:59" // Set giá trị mặc định an toàn
+            }
         })
     }
 
@@ -939,10 +1051,8 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             nameCLB = name
             dataLocation = location
             binding.boxSelectClb.visibility = View.GONE
+            // 🌟 CHỈ CẦN GỌI LOADSTOREINFO: Nó sẽ tự động kích hoạt tải Timeline sau khi có Giờ Hoạt động
             loadTableCountForSelectedStore(storeIdFromArgs)
-            if (dataDate != null) {
-                fetchAvailabilityTimeline(storeId!!, dataDate!!)
-            }
         } else {
             binding.boxSelectClb.visibility = View.VISIBLE
             binding.searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -1045,37 +1155,44 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     }
     // Mục đích: Tính toán tổng giá tiền dựa trên thời gian chơi, giá giờ, phụ phí (nếu có) và mã giảm giá.
     private fun calculateTablePrice(): Double {
+        // Mục đích: Tính toán tổng giá tiền dựa trên thời gian chơi và giá mỗi giờ, ÁP DỤNG DISCOUNT DƯỚI DẠNG PHẦN TRĂM.
         return try {
             if (dataStartTime == null || dataEndTime == null) return 0.0
 
-            val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val startDate = dateFormat.parse(dataStartTime!!)!!
+            val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault());
+            val startDate = dateFormat.parse(dataStartTime!!)!!;
             val endDate = dateFormat.parse(dataEndTime!!)!!
+
             var durationInMillis = endDate.time - startDate.time
-            // Xử lý trường hợp qua đêm (vd: 23:00 - 01:00)
-            if (durationInMillis < 0) {
-                durationInMillis += TimeUnit.DAYS.toMillis(1)
-            }
+            if (durationInMillis < 0) { durationInMillis += TimeUnit.DAYS.toMillis(1) }
+
             val totalHours = durationInMillis / (1000.0 * 60.0 * 60.0)
             if (totalHours <= 0) return 0.0
+
             var calculatedPrice = (priceTable ?: 0) * totalHours
-            discount = 0.0 // Reset giảm giá
+            discount = 0.0
+
             if (!appliedVoucherValue.isNullOrEmpty()) {
                 val voucherValue = appliedVoucherValue!!
-                if (voucherValue.contains("%")) { // Giảm theo %
-                    val percentage = voucherValue.replace("%", "").trim().toDoubleOrNull() ?: 0.0
+
+                // ✅ LOGIC SỬA ĐỔI: Luôn cố gắng xử lý như phần trăm, loại bỏ ký tự % (nếu có)
+                val numericValueStr = voucherValue.replace("%", "").trim()
+                val percentage = numericValueStr.toDoubleOrNull() ?: 0.0
+
+                // Giảm giá chỉ được áp dụng nếu là một tỷ lệ hợp lý (ví dụ: < 100%)
+                if (percentage > 0.0 && percentage <= 100.0) {
                     discount = calculatedPrice * (percentage / 100.0)
                     calculatedPrice -= discount!!
                 } else {
-                    val amount = voucherValue.toDoubleOrNull() ?: 0.0
-                    discount = amount // Lưu lại số tiền giảm
-                    calculatedPrice -= amount
+                    // Xử lý là SỐ TIỀN CỐ ĐỊNH
+                    discount = percentage // Lưu lại giá trị cố định
+                    calculatedPrice -= discount!!
                 }
             }
+
             if (calculatedPrice < 0) 0.0 else calculatedPrice
         } catch (e: Exception) {
-            Log.e("CalculatePrice", "Error calculating price: ${e.message}")
-            0.0
+            Log.e("CalculatePrice", "Error calculating price: ${e.message}"); 0.0
         }
     }
     // Mục đích: Gọi API backend (/check_availability) để kiểm tra lần cuối cùng trước khi hiển thị dialog thanh toán, nhằm xử lý race condition.
@@ -1110,7 +1227,8 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                     } else {
                         Log.w("BookingCheck", "Final check FAILED: ${response.body()!!.message}")
                         Toast.makeText(requireContext(), response.body()!!.message ?: "Bàn đã được đặt trong lúc bạn chọn!", Toast.LENGTH_LONG).show()
-                        fetchAvailabilityTimeline(storeId!!, dataDate!!)
+                        // 🌟 Tải lại Timeline trực quan khi kiểm tra cuối cùng thất bại
+                        fetchDetailedTimelineData(storeId!!, dataDate!!)
                     }
                 } else {
                     Log.e("BookingCheck", "Server error during final check: ${response.code()}")
@@ -1157,7 +1275,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             }
             .addOnFailureListener {
                 Log.e("Location", "Error getting location", it)
-                Toast.makeText(context, "Lỗi khi lấy vị trí.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Lỗi khi lấy vị trí.", Toast.LENGTH_SHORT).show()
             }
     }
 
