@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -52,6 +53,12 @@ class FragmentHistory : Fragment() {
     }
 
     private fun setUpHistory() {
+        val currentUserId = userId
+        if (currentUserId.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Bạn cần đăng nhập để xem lịch sử.", Toast.LENGTH_LONG).show()
+            return
+        }
+
         historyAdapter = RvHistory(listHistory)
         binding.rvHistory.adapter = historyAdapter
         binding.rvHistory.layoutManager = GridLayoutManager(
@@ -67,23 +74,30 @@ class FragmentHistory : Fragment() {
                 if (snapshot.exists()) {
                     for (historySnap in snapshot.children) {
                         var historyData = historySnap.getValue(dataTableManagement::class.java)
-                        if (historyData?.status == "Đã hoàn thành" || historyData?.status == "Đã huỷ") {
+                        if (historyData?.status == "Đã hoàn thành" || historyData?.status == "Đã huỷ" || historyData?.status == "Đã hoàn thành(manager)") {
                             historyData?.let { listHistory.add(it) }
                         }
                     }
                 }
                 historyAdapter.notifyDataSetChanged()
+                if (listHistory.isEmpty()) {
+                    binding.rvHistory.visibility = View.GONE
+                     binding.tvNoHistory.visibility = View.VISIBLE
+                } else {
+                    binding.rvHistory.visibility = View.VISIBLE
+                     binding.tvNoHistory.visibility = View.GONE
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
             }
         }
-        dbRefBookTable.addValueEventListener(historyValueEventListenner)
+        dbRefBookTable.orderByChild("userId").equalTo(currentUserId).addValueEventListener(historyValueEventListenner)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        dbRefBookTable.removeEventListener(historyValueEventListenner)
+        dbRefBookTable.orderByChild("userId").equalTo(userId).removeEventListener(historyValueEventListenner)
     }
 
 

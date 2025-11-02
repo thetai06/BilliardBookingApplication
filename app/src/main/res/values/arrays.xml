@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="distance_options">
+        <item>10 km</item>
+        <item>5 km</item>
+        <item>20 km</item>
+        <item>Tất cả</item>
+    </string-array>
+</resources>

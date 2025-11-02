@@ -45,6 +45,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.journeyapps.barcodescanner.BarcodeEncoder
+import com.journeyapps.barcodescanner.ViewfinderView
 import okhttp3.OkHttpClient
 import org.o7planning.myapplication.R
 import org.o7planning.myapplication.admin.ApiService
@@ -53,6 +54,7 @@ import org.o7planning.myapplication.admin.AvailabilityResponse
 import org.o7planning.myapplication.admin.DetailedTimelineData
 import org.o7planning.myapplication.admin.PaymentRequest
 import org.o7planning.myapplication.admin.PaymentResponse
+import org.o7planning.myapplication.admin.TimeSlot
 import org.o7planning.myapplication.admin.VietQrResponse
 import org.o7planning.myapplication.data.dataStore
 import org.o7planning.myapplication.data.dataTableManagement
@@ -99,15 +101,13 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     private var totalTables: String? = null
     private var openingHour: String? = null
     private var closingHour: String? = null
+    private var distanceLimitMeters: Double = 10000.0
 
     private var totalPrice: Double? = 0.0
     private var discount: Double? = 0.0
     private var appliedVoucherValue: String? = null
 
-    // 🌟 BIẾN: LƯU TRỮ DỮ LIỆU TIMELINE CHI TIẾT
     private var detailedTimelineData: DetailedTimelineData? = null
-
-    // 🌟 KHAI BÁO THIẾU
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     private lateinit var binding: FragmentBooktableBinding
@@ -147,23 +147,24 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         displayedStoreList = arrayListOf()
 
         binding.btnConfirmBooking.isEnabled = true
+        binding.hsvTimeline.visibility = View.GONE
+
+        binding.timelineChartView.setCustomerMode(true) // Set mode Khách hàng (Xanh/Đỏ)
+        binding.timelineChartView.tag = Calendar.getInstance() // Set Tag mặc định là hôm nay
+
 
         loadUserinformation()
 
-        // 🌟 SET NGÀY MẶC ĐỊNH
         val today = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Calendar.getInstance().time)
         binding.tvDate.text = today
         dataDate = today
 
+        setupDistanceFilter()
         boxSelectDate()
         boxSelectPeopel()
         boxSelectOutstandingCLB()
         setupVoucherInteraction()
 
-        // 🌟 ẨN TIMELINE VIEW BAN ĐẦU
-        binding.hsvTimeline.visibility = View.GONE
-
-        // 🌟 LOGIC CHỌN GIỜ ĐÃ SỬA
         binding.textViewTimeStart.setOnClickListener { showTimePickerDialog(true) }
         binding.textViewTimeEnd.setOnClickListener { showTimePickerDialog(false) }
 
@@ -176,9 +177,12 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                 Toast.makeText(requireContext(), "Vui lòng chọn đầy đủ thông tin đặt bàn!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
+            // 🌟 KIỂM TRA KHẢ DỤNG CUỐI CÙNG QUA API SERVER
             if (!validateExistingTimeSelection()) {
                 return@setOnClickListener
             }
+
             showTableInformationDialog()
         }
 
@@ -186,7 +190,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     }
 
     private fun showTimePickerDialog(isStartTime: Boolean) {
-        // Mục đích: Hiển thị TimePickerDialog và xử lý logic chọn giờ hợp lệ (tối thiểu 30 phút, không quá khứ + 5 phút).
         if (storeId == null || dataDate == null) {
             Toast.makeText(requireContext(), "Vui lòng chọn CLB và Ngày trước.", Toast.LENGTH_SHORT).show()
             return
@@ -199,7 +202,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         var defaultHour = cal.get(Calendar.HOUR_OF_DAY)
         var defaultMinute = cal.get(Calendar.MINUTE)
 
-        // Lấy giờ hoạt động của CLB (HH:mm)
         val ohStr = openingHour
         val chStr = closingHour
         if (ohStr == null || chStr == null) {
@@ -222,7 +224,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
         // Tạo TimePickerDialog
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
-            // Làm tròn phút tới bội số của 5
             val roundedMinute = (minute / 5).toFloat().roundToInt() * 5
             val selectedTimeStr = String.format(Locale.getDefault(), "%02d:%02d", hour, roundedMinute)
 
@@ -281,7 +282,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                 dataStartTime = selectedTimeStr
                 binding.textViewTimeStart.text = dataStartTime
 
-                // Reset giờ kết thúc nếu có xung đột (End <= Start) HOẶC THỜI GIAN CHỌN < 30 PHÚT
                 if (dataEndTime != null) {
                     val minEndTimeCal = selectedCalendar.clone() as Calendar
                     minEndTimeCal.add(Calendar.MINUTE, 30)
@@ -309,8 +309,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
                 val startParts = dataStartTime!!.split(":")
 
-                // 🌟 TÍNH TOÁN DURATION CHÍNH XÁC
-                // Sử dụng thời điểm start/end đã được chuẩn hóa ngày trong selectedCalendarDuration
                 val selectedMoment = selectedCalendar.timeInMillis
 
                 // Cần tính lại startMoment cho cùng ngày/qua đêm logic với End Time
@@ -318,10 +316,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                 calStart.set(Calendar.HOUR_OF_DAY, startParts[0].toInt())
                 calStart.set(Calendar.MINUTE, startParts[1].toInt())
 
-                // Điều chỉnh ngày cho Start Time nếu End Time qua đêm
                 if(selectedCalendar.get(Calendar.DAY_OF_YEAR) > cal.get(Calendar.DAY_OF_YEAR) && ohStr > chStr) {
-                    // Nếu End Time đã qua đêm (ví dụ: ngày mai) và CLB qua đêm, Start phải là ngày hôm nay.
-                    // Logic này phức tạp, ta dùng phương pháp tính khoảng thời gian:
                     val startMomentParse = try { timeFormat.parse(dataStartTime!!)!!.time } catch (e: Exception) { 0L }
 
                     var calculatedStartMoment = startMomentParse
@@ -363,7 +358,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             timeSetListener,
             defaultHour,
             defaultMinute,
-            true // 24-hour view
+            true
         )
         dialog.show()
     }
@@ -840,6 +835,9 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         dataDate = date
         dataStartTime = null
         dataEndTime = null
+        binding.textViewTimeStart.text = "Start time"
+        binding.textViewTimeEnd.text = "End time"
+        updatePrice() // Reset giá
     }
 
     // Mục đích: Thiết lập RecyclerView để hiển thị danh sách các CLB Bida.
@@ -908,7 +906,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
     // Mục đích: Cập nhật các biến dataStartTime, dataEndTime và các TextView hiển thị giờ/giá dựa trên các slot đang được chọn.
     private fun updateFragmentStateFromSelection() {
-        // Đã loại bỏ logic TimeSlotAdapter cũ, chỉ cập nhật từ dataStartTime/dataEndTime
+        // Dùng cho logic cũ, giờ chỉ cập nhật giá
         if (dataStartTime != null && dataEndTime != null) {
             binding.textViewTimeStart.text = dataStartTime
             binding.textViewTimeEnd.text = dataEndTime
@@ -919,49 +917,54 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         updatePrice()
     }
 
-    // 🌟 HÀM MỚI: GỌI API LẤY DETAILED TIMELINE VÀ HIỂN THỊ LÊN CHART VIEW
+    // 🌟 HÀM GỌI API LẤY DETAILED TIMELINE (TỪ FRAGMENT OWNER)
     private fun fetchDetailedTimelineData(storeId: String, date: String) {
         Toast.makeText(context, "Đang tải Timeline chi tiết ngày $date...", Toast.LENGTH_SHORT).show()
-
-        // 🌟 HIỂN THỊ HORIZONTAL SCROLL VIEW
-        binding.hsvTimeline.visibility = View.VISIBLE
-
         val request = TimelineRequest(storeId, date)
 
-        // Lấy giờ hoạt động đã tải từ Firebase (nếu có)
         val defaultOpen = openingHour ?: "00:00"
         val defaultClose = closingHour ?: "23:59"
 
-        // Sử dụng RetrofitClient.apiService đã được định nghĩa ở ngoài
-        RetrofitClient.apiService.getDetailedTimelineData(request).enqueue(object : Callback<DetailedTimelineData> {
-            override fun onResponse(call: Call<DetailedTimelineData>, response: Response<DetailedTimelineData>) {
-                if (response.isSuccessful && response.body() != null) {
-                    response.body()?.let { data ->
-                        // 1. Cập nhật Custom View (TimelineChartView) với dữ liệu chi tiết
-                        binding.timelineChartView.updateDetailedTimeline(data)
-                        detailedTimelineData = data // Lưu lại dữ liệu chi tiết
+        RetrofitClient.apiService.getDetailedTimelineData(request)
+            .enqueue(object : Callback<DetailedTimelineData> {
+                override fun onResponse(call: Call<DetailedTimelineData>, response: Response<DetailedTimelineData>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        response.body()?.let { data ->
+                            // 1. Cập nhật Timeline View (Hiển thị trực quan Xanh/Đỏ)
+                            binding.timelineChartView.setCustomerMode(true)
+
+                            // 🌟 QUAN TRỌNG: Gán lại Calendar mới cho Tag để TimelineChartView biết ngày nào đang xem
+                            val chartCalendar = Calendar.getInstance().apply {
+                                try { time = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(date)!! } catch (e: Exception) {}
+                            }
+                            binding.timelineChartView.tag = chartCalendar.clone()
+
+                            binding.timelineChartView.updateDetailedTimeline(data)
+                            detailedTimelineData = data
+                            binding.hsvTimeline.visibility = View.VISIBLE
+                        }
+                    } else {
+                        Log.e("TimelineAPI", "Server error fetching detailed timeline: ${response.code()}")
+                        Toast.makeText(context, "Lỗi tải lịch bàn từ server. Code: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        binding.hsvTimeline.visibility = View.GONE
+                        binding.timelineChartView.updateDetailedTimeline(
+                            DetailedTimelineData(totalTables = 1, openingHour = defaultOpen, closingHour = defaultClose, busyBookings = emptyList())
+                        )
+                        detailedTimelineData = null
                     }
-                } else {
-                    Log.e("TimelineAPI", "Server error fetching detailed timeline: ${response.code()}")
-                    Toast.makeText(context, "Lỗi tải lịch bàn từ server. Code: ${response.code()}", Toast.LENGTH_SHORT).show()
-                    // Tạo dữ liệu trống để reset View, sử dụng giờ hoạt động đã lưu
+                }
+
+                override fun onFailure(call: Call<DetailedTimelineData>, t: Throwable) {
+                    Log.e("TimelineAPI", "Network error fetching detailed timeline: ${t.message}")
+                    Toast.makeText(context, "Lỗi kết nối khi tải lịch bàn.", Toast.LENGTH_SHORT).show()
                     binding.timelineChartView.updateDetailedTimeline(
                         DetailedTimelineData(totalTables = 1, openingHour = defaultOpen, closingHour = defaultClose, busyBookings = emptyList())
                     )
                     detailedTimelineData = null
                 }
-            }
-            override fun onFailure(call: Call<DetailedTimelineData>, t: Throwable) {
-                Log.e("TimelineAPI", "Network error fetching detailed timeline: ${t.message}")
-                Toast.makeText(context, "Lỗi kết nối khi tải lịch bàn.", Toast.LENGTH_SHORT).show()
-                // Tạo dữ liệu trống để reset View, sử dụng giờ hoạt động đã lưu
-                binding.timelineChartView.updateDetailedTimeline(
-                    DetailedTimelineData(totalTables = 1, openingHour = defaultOpen, closingHour = defaultClose, busyBookings = emptyList())
-                )
-                detailedTimelineData = null
-            }
-        })
+            })
     }
+
 
     // Mục đích: Lấy thông tin chi tiết (tổng số bàn, giờ mở/đóng cửa, giá tiền) của CLB đã chọn từ Firebase.
     private fun loadTableCountForSelectedStore(id: String) {
@@ -1051,7 +1054,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             nameCLB = name
             dataLocation = location
             binding.boxSelectClb.visibility = View.GONE
-            // 🌟 CHỈ CẦN GỌI LOADSTOREINFO: Nó sẽ tự động kích hoạt tải Timeline sau khi có Giờ Hoạt động
             loadTableCountForSelectedStore(storeIdFromArgs)
         } else {
             binding.boxSelectClb.visibility = View.VISIBLE
@@ -1227,7 +1229,7 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                     } else {
                         Log.w("BookingCheck", "Final check FAILED: ${response.body()!!.message}")
                         Toast.makeText(requireContext(), response.body()!!.message ?: "Bàn đã được đặt trong lúc bạn chọn!", Toast.LENGTH_LONG).show()
-                        // 🌟 Tải lại Timeline trực quan khi kiểm tra cuối cùng thất bại
+                        // Tải lại Timeline trực quan khi kiểm tra cuối cùng thất bại
                         fetchDetailedTimelineData(storeId!!, dataDate!!)
                     }
                 } else {
@@ -1280,19 +1282,75 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
     }
 
     // Mục đích: Tính khoảng cách từ vị trí người dùng đến từng CLB và sắp xếp lại danh sách hiển thị.
-    private fun sortClubsByDistance(userLocation: Location) {
-        // Tính khoảng cách cho các CLB có tọa độ
-        displayedStoreList.forEach { club ->
-            if (club.latitude != null && club.longitude != null) {
-                val clubLocation = Location("").apply { latitude = club.latitude!!; longitude = club.longitude!! }
-                club.distance = userLocation.distanceTo(clubLocation).toDouble() // Lưu khoảng cách (mét)
-            } else {
-                club.distance = null // Đánh dấu không có tọa độ
+    private fun sortClubsByDistance(userLocation: Location?) {
+
+        // 1. Tính khoảng cách nếu có vị trí mới
+        if (userLocation != null) {
+            // Cập nhật lại khoảng cách cho toàn bộ danh sách gốc
+            originalStoreList.forEach { club ->
+                club.distance = null
+                if (club.latitude != null && club.longitude != null) {
+                    val clubLocation = Location("").apply { latitude = club.latitude!!; longitude = club.longitude!! }
+                    club.distance = userLocation.distanceTo(clubLocation).toDouble()
+                }
             }
         }
-        displayedStoreList.sortBy { it.distance ?: Double.MAX_VALUE }
+
+        // Tạo danh sách tạm thời cho các CLB nằm trong giới hạn
+        val filteredAndSortedList = mutableListOf<dataStore>()
+
+        // 2. Lọc theo GIỚI HẠN KHOẢNG CÁCH (sử dụng originalStoreList)
+        originalStoreList.forEach { club ->
+            // Lọc: Nếu khoảng cách null hoặc lớn hơn giới hạn -> bỏ qua
+            if (club.distance != null && club.distance!! <= distanceLimitMeters) {
+                filteredAndSortedList.add(club)
+            } else if (distanceLimitMeters == Double.MAX_VALUE) {
+                // Trường hợp "Tất cả": Nếu chưa có khoảng cách (club.distance == null), vẫn hiển thị nó
+                filteredAndSortedList.add(club)
+            }
+        }
+
+        // 3. Sắp xếp danh sách đã lọc theo khoảng cách
+        filteredAndSortedList.sortBy { it.distance ?: Double.MAX_VALUE }
+
+        // 4. Cập nhật danh sách hiển thị
+        displayedStoreList.clear()
+        displayedStoreList.addAll(filteredAndSortedList)
+
         storeAdapter.notifyDataSetChanged() // Cập nhật RecyclerView
-        Toast.makeText(context, "Đã sắp xếp CLB theo khoảng cách!", Toast.LENGTH_SHORT).show()
+
+        val limitKm = if (distanceLimitMeters == Double.MAX_VALUE) "Tất cả" else (distanceLimitMeters / 1000.0).toInt().toString() + " km"
+        if (displayedStoreList.isEmpty()) {
+            binding.rvClbBia.visibility = View.GONE
+            binding.tvRvClbBia.visibility = View.VISIBLE
+            binding.tvRvClbBia.text = "Không tìm thấy CLB nào trong giới hạn ${limitKm}."
+        } else {
+            binding.tvRvClbBia.visibility = View.GONE
+            binding.rvClbBia.visibility = View.VISIBLE
+            if (userLocation != null) {
+                Toast.makeText(context, "Đã sắp xếp ${displayedStoreList.size} CLB trong giới hạn ${limitKm}!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun setupDistanceFilter() {
+        val spinner: Spinner = binding.spinnerDistanceLimit
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selection = parent.getItemAtPosition(position).toString()
+                distanceLimitMeters = when (selection) {
+                    "5 km" -> 5000.0
+                    "10 km" -> 10000.0
+                    "20 km" -> 20000.0
+                    else -> Double.MAX_VALUE // "Tất cả"
+                }
+                if (displayedStoreList.any { it.distance != null }) {
+                    sortClubsByDistance(null)
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
     }
 
     // Mục đích: Hiển thị hộp thoại hướng dẫn người dùng vào Cài đặt để cấp quyền vị trí nếu họ đã từ chối vĩnh viễn.

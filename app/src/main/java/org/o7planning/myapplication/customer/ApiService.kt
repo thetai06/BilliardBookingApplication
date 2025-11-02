@@ -1,5 +1,6 @@
 package org.o7planning.myapplication.admin
 
+import android.graphics.Color
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -14,7 +15,9 @@ import retrofit2.http.Path
 
 data class BusyInterval(
     val startTime: String, // HH:mm
-    val endTime: String    // HH:mm
+    val endTime: String,    // HH:mm
+    val bookedTables: Int = 0,
+    val color: Int = Color.TRANSPARENT
 )
 // Dữ liệu chi tiết trả về từ Server cho Timeline Owner (3 màu)
 data class DetailedTimelineData(
@@ -24,10 +27,7 @@ data class DetailedTimelineData(
     val busyBookings: List<BusyInterval>
 )
 
-// ====================================================================
 // DATA CLASSES CHUNG (Đặt bàn, Store)
-// ====================================================================
-
 data class TimelineRequest(
     val storeId: String,
     val date: String
@@ -75,10 +75,7 @@ data class AddStoreResponse(
     val storeId: String? = null
 )
 
-// ====================================================================
 // DATA CLASSES CHO CHỨC NĂNG KHÁC (PreCheck, User, Payment)
-// ====================================================================
-
 data class PreBookCheckRequest(
     val storeId: String,
     val dataDate: String,
@@ -141,10 +138,7 @@ data class VietQrResponse(
     val qrDataString: String
 )
 
-// ====================================================================
 // INTERFACE API SERVICE
-// ====================================================================
-
 interface ApiService {
 
     // --- API TIMELINE OWNER (3 MÀU) ---
@@ -155,8 +149,6 @@ interface ApiService {
     @POST("/check_availability")
     fun checkAvailability(@Body request: AvailabilityRequest): Call<AvailabilityResponse>
 
-    @POST("/get_availability_timeline")
-    fun getAvailabilityTimeline(@Body request: TimelineRequest): Call<List<TimeSlot>>
 
     @POST("/add_store")
     fun addStore(
@@ -190,9 +182,6 @@ interface ApiService {
     // --- API THANH TOÁN ---
     @POST("/create_payment_url")
     fun createPaymentUrl(@Body request: PaymentRequest): Call<PaymentResponse>
-
-    @POST("/create_upgrade_payment_url")
-    fun createUpgradePaymentUrl(@Body request: PaymentRequestUpgrade): Call<PaymentResponse>
 
     @POST("/create_vietqr_data")
     fun createVietQrData(@Body request: PaymentRequest): Call<VietQrResponse>

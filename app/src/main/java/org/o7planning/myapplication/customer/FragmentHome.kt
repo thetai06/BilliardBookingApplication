@@ -131,7 +131,7 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
         }
 
         bookingAdapter.onClickCancelOrder = { item, _ ->
-            if (item.paymentStatus == "Chờ thanh toán VietQR" || item.paymentStatus == "Chờ thanh toán VNPay" || item.paymentStatus == "Đã thanh toán") {
+            if (item.paymentStatus == "Chờ thanh toán" || item.paymentStatus == "Chờ thanh toán" || item.paymentStatus == "Đã thanh toán") {
                 dialogDeleteOrder(item)
             }
         }
@@ -336,16 +336,15 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
                     val tempBookingList = mutableListOf<dataTableManagement>()
                     for (bookingSnap in snapshot.children) {
                         val bookingData = bookingSnap.getValue(dataTableManagement::class.java)
-                        if (bookingData != null && bookingData.paymentStatus in listOf("Đã thanh toán", "Chờ thanh toán VNPay", "Chờ thanh toán VietQR", "Đang chơi")) {
+                        if (bookingData != null && bookingData.paymentStatus in listOf("Đã thanh toán", "Chờ thanh toán")) {
                             tempBookingList.add(bookingData)
                         }
                     }
                     tempBookingList.sortBy { data ->
                         when (data.paymentStatus) {
-                            "Chờ thanh toán VNPay" -> 0
-                            "Chờ thanh toán VietQR" -> 1
-                            "Đã thanh toán" -> 2
-                            else -> 3
+                            "Chờ thanh toán" -> 0
+                            "Đã thanh toán" -> 1
+                            else -> 2
                         }
                     }
                     listBooking.addAll(tempBookingList)
@@ -366,7 +365,7 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
 
     private fun handleClickTheBooking(item: dataTableManagement) {
         when (item.paymentStatus) {
-            "Chờ thanh toán VNPay" -> {
+            "Chờ thanh toán" -> {
                 if (item.paymentUrl.isNullOrEmpty() || item.id.isNullOrEmpty() || item.money == null) {
                     Toast.makeText(requireContext(), "Lỗi: Không tìm thấy dữ liệu thanh toán", Toast.LENGTH_SHORT).show()
                     return

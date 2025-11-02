@@ -31,7 +31,7 @@ class RvVoucher(val list:List<dataVoucher>, private var listenner: onClickVouche
             titleVoucher.text = data.description
             dateVoucher.text = "Thời gian: ${data.expiryDate}"
             voucherCode.text = data.code
-            copyVoucherCode.setOnClickListener {
+            btnApplyVoucher.setOnClickListener {
                 listenner.onClickVoucher(data.code.toString())
             }
         }
