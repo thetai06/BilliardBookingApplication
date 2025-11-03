@@ -52,10 +52,23 @@
             android:layout_marginTop="4dp"
             android:text="@string/txt_date_voucher"
             android:textColor="@color/gray_700"
-            android:textSize="14sp"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@+id/titleVoucher"
             app:layout_constraintStart_toStartOf="@+id/titleVoucher"
             app:layout_constraintTop_toBottomOf="@+id/titleVoucher"
+            tools:text="Thời gian: 2025-11-08" />
+
+        <TextView
+            android:id="@+id/tvPriveVoucher"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/txt_date_voucher"
+            android:textColor="@color/gray_700"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/titleVoucher"
+            app:layout_constraintStart_toStartOf="@+id/titleVoucher"
+            app:layout_constraintTop_toBottomOf="@+id/dateVoucher"
             tools:text="Thời gian: 2025-11-08" />
 
         <com.google.android.material.card.MaterialCardView
@@ -63,10 +76,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/purple_100" app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/purple_100"
+            app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
             app:layout_constraintStart_toStartOf="@+id/titleVoucher"
-            app:layout_constraintTop_toBottomOf="@+id/dateVoucher">
+            app:layout_constraintTop_toBottomOf="@+id/tvPriveVoucher">
 
             <TextView
                 android:id="@+id/voucherCode"
@@ -93,7 +107,7 @@
             android:paddingHorizontal="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dateVoucher"
+            app:layout_constraintTop_toBottomOf="@+id/tvPriveVoucher"
             tools:text="Áp mã giảm giá" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -131,7 +131,7 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
         }
 
         bookingAdapter.onClickCancelOrder = { item, _ ->
-            if (item.paymentStatus == "Chờ thanh toán" || item.paymentStatus == "Chờ thanh toán" || item.paymentStatus == "Đã thanh toán") {
+            if (item.paymentStatus == "Chờ thanh toán" || item.paymentStatus == "Chờ thanh toán(VietQR)" || item.paymentStatus == "Đã thanh toán") {
                 dialogDeleteOrder(item)
             }
         }
@@ -336,7 +336,7 @@ class FragmentHome : Fragment(), onClickOrderOutStandingListenner {
                     val tempBookingList = mutableListOf<dataTableManagement>()
                     for (bookingSnap in snapshot.children) {
                         val bookingData = bookingSnap.getValue(dataTableManagement::class.java)
-                        if (bookingData != null && bookingData.paymentStatus in listOf("Đã thanh toán", "Chờ thanh toán")) {
+                        if (bookingData != null && bookingData.paymentStatus in listOf("Đã thanh toán", "Chờ thanh toán") && bookingData.status in listOf("Đang chơi", "Đang chờ")) {
                             tempBookingList.add(bookingData)
                         }
                     }

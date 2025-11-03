@@ -173,12 +173,23 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
         binding.btnFindNearby.setOnClickListener { requestLocationAndSort() }
 
         binding.btnConfirmBooking.setOnClickListener {
+            val currentUser = mAuth.currentUser
+            if (currentUser == null) {
+                Toast.makeText(requireContext(), "Lỗi: Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Nếu chưa xác thực email
+            if (!currentUser.isEmailVerified) {
+                showEmailVerificationRequiredDialog(currentUser) // Hiển thị Dialog yêu cầu xác thực
+                return@setOnClickListener
+            }
+
             if (dataStartTime == null || dataEndTime == null || dataDate == null || dataPeople == null || dataLocation == null || storeId == null) {
                 Toast.makeText(requireContext(), "Vui lòng chọn đầy đủ thông tin đặt bàn!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // 🌟 KIỂM TRA KHẢ DỤNG CUỐI CÙNG QUA API SERVER
             if (!validateExistingTimeSelection()) {
                 return@setOnClickListener
             }
@@ -1283,7 +1294,6 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
 
     // Mục đích: Tính khoảng cách từ vị trí người dùng đến từng CLB và sắp xếp lại danh sách hiển thị.
     private fun sortClubsByDistance(userLocation: Location?) {
-
         // 1. Tính khoảng cách nếu có vị trí mới
         if (userLocation != null) {
             // Cập nhật lại khoảng cách cho toàn bộ danh sách gốc
@@ -1295,25 +1305,16 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
                 }
             }
         }
-
-        // Tạo danh sách tạm thời cho các CLB nằm trong giới hạn
         val filteredAndSortedList = mutableListOf<dataStore>()
-
-        // 2. Lọc theo GIỚI HẠN KHOẢNG CÁCH (sử dụng originalStoreList)
         originalStoreList.forEach { club ->
-            // Lọc: Nếu khoảng cách null hoặc lớn hơn giới hạn -> bỏ qua
             if (club.distance != null && club.distance!! <= distanceLimitMeters) {
                 filteredAndSortedList.add(club)
             } else if (distanceLimitMeters == Double.MAX_VALUE) {
-                // Trường hợp "Tất cả": Nếu chưa có khoảng cách (club.distance == null), vẫn hiển thị nó
                 filteredAndSortedList.add(club)
             }
         }
 
-        // 3. Sắp xếp danh sách đã lọc theo khoảng cách
         filteredAndSortedList.sortBy { it.distance ?: Double.MAX_VALUE }
-
-        // 4. Cập nhật danh sách hiển thị
         displayedStoreList.clear()
         displayedStoreList.addAll(filteredAndSortedList)
 
@@ -1368,6 +1369,34 @@ class FragmentBooktable : Fragment(), onOrderClickListener {
             .show()
     }
 
+    private fun showEmailVerificationRequiredDialog(user: com.google.firebase.auth.FirebaseUser) {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_custom_verify, null)
+        builder.setView(dialogView).setCancelable(false)
+        val alertDialog: AlertDialog = builder.create().apply {
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        val btnResend = dialogView.findViewById<Button>(R.id.btn_resend_email)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel_verify)
+
+        btnResend.setOnClickListener {
+            btnResend.isEnabled = false // Ngăn double-click
+            user.sendEmailVerification()
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Đã gửi lại email xác thực! Vui lòng kiểm tra hộp thư.", Toast.LENGTH_LONG).show()
+                    alertDialog.dismiss()
+                }
+                .addOnFailureListener { e ->
+                    Log.e("VerifyEmail", "Failed to resend verification email", e)
+                    Toast.makeText(requireContext(), "Lỗi gửi email: ${e.message}", Toast.LENGTH_LONG).show()
+                    btnResend.isEnabled = true
+                }
+        }
+        btnCancel.setOnClickListener {
+            alertDialog.dismiss()
+        }
+        alertDialog.show()
+    }
     // Mục đích: Tạo và gửi Intent để mở ứng dụng Google Maps và bắt đầu chỉ đường đến tọa độ của CLB.
     private fun launchGoogleMapsDirections(latitude: Double, longitude: Double, clubName: String) {
         val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude")

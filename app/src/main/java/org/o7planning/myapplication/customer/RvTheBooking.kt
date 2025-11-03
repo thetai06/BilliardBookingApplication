@@ -42,10 +42,14 @@ class RvTheBooking(val list: ArrayList<dataTableManagement>) : RecyclerView.Adap
             statusRealtime.setText(data.paymentStatus)
             if (data.paymentStatus == "Đã thanh toán"){
                 statusRealtime.setBackgroundResource(R.drawable.bg_status_green)
-            }else if (data.paymentStatus =="Đang chơi"){
+            }else if (data.status =="Đang chơi"){
+                tvStarus.setBackgroundResource(R.drawable.bg_status_green)
                 statusRealtime.setBackgroundResource(R.drawable.bg_start_game)
-            }else if (data.paymentStatus == "Chờ thanh toán VietQR" || data.paymentStatus == "Chờ thanh toán VNPay"){
+            }else if (data.paymentStatus == "Chờ thanh toán VietQR" || data.paymentStatus == "Chờ thanh toán"){
                 statusRealtime.setBackgroundResource(R.drawable.bg_status_yellow)
+            }
+            if (data.status == "Đang chờ"){
+                tvStarus.setBackgroundResource(R.drawable.bg_status_yellow)
             }
         }
         holder.itemView.setOnLongClickListener {

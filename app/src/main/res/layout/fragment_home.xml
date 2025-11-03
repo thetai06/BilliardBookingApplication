@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:background="#F7FBF9">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:paddingBottom="16dp"
         tools:context=".admin.MainActivity">
 
-        <!-- Khối đặt bàn nhanh -->
+        <!-- Khối đặt bàn nhanh (Header) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/header_home"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/bg_btn_xam"
-            android:backgroundTint="@color/colorMain"
+            android:backgroundTint="#10B981"
             android:padding="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +36,6 @@
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/dimen_txt_title_22sp"
                 android:textStyle="bold"
-                app:layout_constraintHorizontal_bias="0.433"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -52,64 +53,111 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/bg_btn_xam"
+                android:backgroundTint="@android:color/white"
                 android:minWidth="150dp"
-                android:textColor="@color/colorMain"
                 android:text="@string/btn_txt_fastbooking"
+                android:textColor="#10B981"
                 android:textSize="@dimen/dimen_txt_16sp"
                 app:layout_constraintStart_toStartOf="@id/txt_header_subtitle"
                 app:layout_constraintTop_toBottomOf="@id/txt_header_subtitle" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTournament"
+        <!-- Tiêu đề: Giải đấu nổi bật -->
+        <TextView
+            android:id="@+id/txtTournamentTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:text="Giải đấu nổi bật"
+            android:textColor="#333333"
+            android:textSize="@dimen/dimen_txt_20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header_home"/>
+
+        <!-- Khối Giải đấu nổi bật (CardView) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardRvTournament"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            app:layout_constraintEnd_toEndOf="@+id/header_home"
-            app:layout_constraintStart_toStartOf="@+id/header_home"
-            app:layout_constraintTop_toBottomOf="@+id/header_home">
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtTournamentTitle">
 
-        </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTournament"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"/>
+        </com.google.android.material.card.MaterialCardView>
 
+        <!-- Tiêu đề: Lịch đặt sắp tới -->
         <TextView
             android:id="@+id/txtTheBooking"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
             android:text="Lịch đặt sắp tới"
-            android:padding="10dp"
+            android:textColor="#333333"
             android:textSize="@dimen/dimen_txt_20sp"
-            app:layout_constraintStart_toStartOf="@+id/rvTournament"
-            app:layout_constraintTop_toBottomOf="@+id/rvTournament"/>
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardRvTournament"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTheBooking"
+        <!-- Khối Lịch đặt sắp tới (CardView) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardRvTheBooking"
             android:layout_width="match_parent"
-            android:layout_height="230dp"
-            app:layout_constraintTop_toBottomOf="@+id/txtTheBooking"
-            app:layout_constraintStart_toStartOf="@+id/txtTheBooking"
-            />
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtTheBooking">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTheBooking"
+                android:layout_width="match_parent"
+                android:layout_height="230dp"
+                android:padding="8dp"
+                android:scrollbars="vertical"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Tiêu đề: Tìm kiếm CLB -->
         <TextView
             android:id="@+id/tvClb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
             android:text="Tìm kiếm CLB"
-            android:padding="10dp"
+            android:textColor="#333333"
             android:textSize="@dimen/dimen_txt_20sp"
-            app:layout_constraintStart_toStartOf="@+id/rvTournament"
-            app:layout_constraintTop_toBottomOf="@+id/rvTheBooking"/>
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardRvTheBooking"/>
 
-
+        <!-- Khối tìm kiếm -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/searchBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_send_code"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvClb">
 
             <androidx.appcompat.widget.SearchView
@@ -117,38 +165,47 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:iconifiedByDefault="false"
-                app:layout_constraintWidth_percent="0.9"
                 android:queryHint="Tìm câu lạc bộ theo tên, địa chỉ..."
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.9" />
 
             <ImageButton
                 android:id="@+id/btnFindNearby"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/icons8center60"
-                android:scaleType="fitCenter"
-                app:tint="@color/colorMain"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
                 android:background="@android:color/transparent"
-                app:layout_constraintRight_toRightOf="parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/icons8center60"
+                app:layout_constraintBottom_toBottomOf="@+id/searchView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/searchView"
-                app:layout_constraintBottom_toBottomOf="@+id/searchView"/>
+                app:tint="#10B981" /> <!-- Màu Chủ Đạo -->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvOutstanding"
+        <!-- Khối CLB nổi bật (CardView) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardRvOutstanding"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintHeight_percent="0.4"
-            android:scrollbars="vertical"
-            app:layout_constraintStart_toStartOf="@+id/searchBox"
-            app:layout_constraintTop_toBottomOf="@id/searchBox"
-            tools:layout_editor_absoluteX="32dp"
-            tools:layout_editor_absoluteY="403dp">
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/searchBox">
 
-        </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvOutstanding"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:padding="8dp"
+                android:scrollbars="vertical" />
+
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

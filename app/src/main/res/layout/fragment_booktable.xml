@@ -4,33 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/card_background">
+    android:background="#F7FBF9"> <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="30dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+        android:id="@+id/txtShopTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/txt_shop_title"
+        android:textColor="#10B981" android:textSize="@dimen/dimen_txt_title_22sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBoxSelectClb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="30dp">
-
-        <TextView
-            android:id="@+id/txtShopTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="30dp"
-            android:text="@string/txt_shop_title"
-            android:textColor="@color/colorMain"
-            android:textSize="@dimen/dimen_txt_title_22sp"
-            android:textStyle="bold"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShopTitle">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/boxSelectClb"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtShopTitle">
+            android:padding="10dp">
 
             <ImageView
                 android:id="@+id/iconLocation"
@@ -46,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:text="Chọn câu lạc bộ Bi-a"
-                android:textColor="@color/black"
+                android:textColor="#333333"
                 android:textSize="@dimen/dimen_txt_title_22sp"
                 android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/iconLocation"
@@ -83,9 +90,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/searchView"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/searchView"
-                    app:tint="@color/primary_emerald" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    app:tint="#10B981" /> </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/boxDistanceFilter"
@@ -100,26 +105,36 @@
                     android:id="@+id/tvDistanceLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Lọc theo khoảng cách:"
-                    android:textColor="@color/black"
+                    android:text="Tìm câu lạc bộ gần nhất:"
+                    android:textColor="#333333"
                     android:textSize="@dimen/dimen_txt_20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Spinner
-                    android:id="@+id/spinnerDistanceLimit"
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:background="@drawable/bg_input_rounded"
-                    android:entries="@array/distance_options"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="8dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@android:color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tvDistanceLabel"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <Spinner
+                        android:id="@+id/spinnerDistanceLimit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_input_rounded"
+                        android:entries="@array/distance_options"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="8dp"
+                        tools:background="@android:color/transparent" />
+
+                </com.google.android.material.card.MaterialCardView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -138,8 +153,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:textColor="@color/accent_orange"
-                android:textSize="18sp"
+                android:textColor="#FF7F50" android:textSize="18sp"
                 android:textStyle="italic"
                 android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
@@ -147,14 +161,25 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardSelectDateGame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardBoxSelectClb">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/selectDateGame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:padding="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/boxSelectClb">
+            android:padding="10dp">
 
             <ImageView
                 android:id="@+id/ivLogoDateGame"
@@ -170,7 +195,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="@string/txt_title_select_game"
-                android:textColor="@color/black"
+                android:textColor="#333333"
                 android:textSize="@dimen/dimen_txt_title_22sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/ivLogoDateGame"
@@ -205,15 +230,25 @@
                 app:layout_constraintTop_toTopOf="@+id/tvDate"
                 app:tint="@color/gray_text" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBoxSelectTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardSelectDateGame">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/boxSelectTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:padding="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/selectDateGame">
+            android:padding="10dp">
 
             <ImageView
                 android:id="@+id/ivSelectTime"
@@ -229,7 +264,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="Chọn khung giờ (còn trống):"
-                android:textColor="@color/black"
+                android:textColor="#333333"
                 android:textSize="@dimen/dimen_txt_20sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/ivSelectTime"
@@ -263,6 +298,10 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/bg_input_rounded"
                 android:drawableStart="@drawable/icons8watch30"
+                app:layout_constraintEnd_toStartOf="@+id/textViewTimeEnd"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/hsvTimeline"
                 android:drawableTint="@color/gray_text"
                 android:gravity="center"
                 android:hint="Start time"
@@ -270,11 +309,7 @@
                 android:paddingVertical="12dp"
                 android:textColor="@color/black"
                 android:textColorHint="@color/placeholder_text"
-                android:textSize="@dimen/dimen_txt_title_22sp"
-                app:layout_constraintEnd_toStartOf="@+id/textViewTimeEnd"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/hsvTimeline" />
+                android:textSize="@dimen/dimen_txt_title_22sp" />
 
             <TextView
                 android:id="@+id/textViewTimeEnd"
@@ -285,6 +320,10 @@
                 android:layout_marginEnd="0dp"
                 android:background="@drawable/bg_input_rounded"
                 android:drawableStart="@drawable/icons8watch30"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/textViewTimeStart"
+                app:layout_constraintTop_toBottomOf="@+id/hsvTimeline"
                 android:drawableTint="@color/gray_text"
                 android:gravity="center"
                 android:hint="End time"
@@ -292,21 +331,27 @@
                 android:paddingVertical="12dp"
                 android:textColor="@color/black"
                 android:textColorHint="@color/placeholder_text"
-                android:textSize="@dimen/dimen_txt_title_22sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toEndOf="@+id/textViewTimeStart"
-                app:layout_constraintTop_toBottomOf="@+id/hsvTimeline" />
+                android:textSize="@dimen/dimen_txt_title_22sp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBoxCountPeopel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardBoxSelectTime">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/boxCountPeopel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:padding="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/boxSelectTime">
+            android:padding="10dp">
 
             <ImageView
                 android:id="@+id/imgIconPeople"
@@ -322,7 +367,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="@string/txt_number_peopel_title"
-                android:textColor="@color/black"
+                android:textColor="#333333"
                 android:textSize="@dimen/dimen_txt_20sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/imgIconPeople"
@@ -340,15 +385,25 @@
                 app:layout_constraintTop_toBottomOf="@id/txtNumberPeople" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBoxVoucher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardBoxCountPeopel">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/boxVoucher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:padding="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/boxCountPeopel">
+            android:padding="10dp">
 
             <ImageView
                 android:id="@+id/ivVoucher"
@@ -364,7 +419,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="Mã giảm giá"
-                android:textColor="@color/black"
+                android:textColor="#333333"
                 android:textSize="@dimen/dimen_txt_title_22sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/ivVoucher"
@@ -398,8 +453,7 @@
                 android:maxLines="1"
                 android:paddingVertical="12dp"
                 android:text="Áp dụng"
-                android:textColor="@color/accent_orange"
-                android:textSize="16sp"
+                android:textColor="#FF7F50" android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/edtDiscountCode"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -407,23 +461,24 @@
                 app:layout_constraintStart_toEndOf="@+id/edtDiscountCode"
                 app:layout_constraintTop_toTopOf="@+id/edtDiscountCode" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnConfirmBooking"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/bg_btn_orange"
-            android:paddingVertical="15dp"
-            android:text="@string/btn_confirm_booking"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/boxVoucher" />
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnConfirmBooking"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/bg_btn_orange"
+        android:paddingVertical="15dp"
+        android:text="@string/btn_confirm_booking"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:backgroundTint="#10B981" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardBoxVoucher" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
