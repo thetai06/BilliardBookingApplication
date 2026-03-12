@@ -7,10 +7,8 @@ const { formatPhoneNumber } = require('../utils/helpers');
 
 // API 1: TẠO USER MỚI (Manager, User...)
 router.post('/createUser', authenticateToken, async (req, res) => {
-    // Thay thế db bằng global.db, admin.auth() bằng admin.auth()
     const ownerId = req.user.uid;
     const { name, email, phone, password, role, address, storeId } = req.body;
-    // ... (logic kiểm tra, tạo user, tạo dataUser) ...
     if (!name || !email || !password || !role) {
         return res.status(400).json({ success: false, message: 'Thiếu thông tin (name, email, password, role).' });
     }
@@ -42,7 +40,6 @@ router.post('/createUser', authenticateToken, async (req, res) => {
 
 // API 2: CẬP NHẬT USER
 router.put('/updateUser/:id', authenticateToken, async (req, res) => {
-    // ... [GIỮ NGUYÊN LOGIC CỦA API updateUser TẠI ĐÂY] ...
     const ownerId = req.user.uid;
     const userIdToUpdate = req.params.id;
     const { name, phone, role, address, storeId } = req.body;
@@ -68,7 +65,6 @@ router.put('/updateUser/:id', authenticateToken, async (req, res) => {
 
 // API 3: XÓA USER
 router.delete('/deleteUser/:id', authenticateToken, async (req, res) => {
-    // ... [GIỮ NGUYÊN LOGIC CỦA API deleteUser TẠI ĐÂY] ...
     const ownerId = req.user.uid;
     const userIdToDelete = req.params.id;
     try {
