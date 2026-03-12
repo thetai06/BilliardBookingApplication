@@ -8,14 +8,13 @@ const admin = require('firebase-admin');
 const axios = require('axios');
 const cors = require('cors');
 
-// Import các modules và files đã tách
 const { cleanupExpiredOrders, cleanupUnverifiedUsers, scheduleStatusUpdatesForBooking } = require('./services/cronService');
 const { initializeFirebase, loadEnvironmentVariables } = require('./services/initService');
 
 // --- Khởi tạo Express & Biến môi trường ---
 const app = express();
 const port = process.env.PORT || 3000;
-global.FREE_STORE_LIMIT = 2; // Biến toàn cục hoặc truyền qua Service
+global.FREE_STORE_LIMIT = 2; 
 global.ADD_STORE_FEE = 5000000;
 
 // Khởi tạo Firebase Admin SDK và tải biến môi trường vào global scope
@@ -40,8 +39,6 @@ app.use(cors(corsOptions));
 console.log("CORS enabled for http://127.0.0.1:5500");
 
 
-// --- Import và Sử dụng Routes ---
-// Import voucherRoutes nếu bạn chưa làm (như trong code cũ)
 const voucherRoutes = require('./routes/voucherRoutes');
 app.use('/vouchers', voucherRoutes);
 
@@ -52,13 +49,11 @@ const storeRoutes = require('./routes/storeRoutes');
 
 // Gắn routes vào app (sử dụng /api làm tiền tố cho dễ quản lý)
 app.use('/api', authRoutes);
-app.use('/', paymentRoutes); // Giữ nguyên cho VNPAY/VietQR IPN để tránh xung đột path
-app.use('/', storeRoutes); // Giữ nguyên cho các API khác
+app.use('/', paymentRoutes); 
+app.use('/', storeRoutes); 
 
 
-//================================================================================
 // HỆ THỐNG LÊN LỊCH CẬP NHẬT TRẠNG THÁI & DỌN DẸP
-//================================================================================
 const CLEANUP_INTERVAL = 5 * 60 * 1000;
 const USER_CLEANUP_RUN_INTERVAL = 24 * 60 * 60 * 1000;
 
@@ -66,10 +61,7 @@ const USER_CLEANUP_RUN_INTERVAL = 24 * 60 * 60 * 1000;
 setInterval(cleanupExpiredOrders, CLEANUP_INTERVAL);
 setInterval(cleanupUnverifiedUsers, USER_CLEANUP_RUN_INTERVAL);
 
-
-//================================================================================
 // KHỞI ĐỘNG SERVER VÀ LẮNG NGHE
-//================================================================================
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
     const localTimeFormat = { hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' };
@@ -79,7 +71,7 @@ app.listen(port, () => {
     cleanupExpiredOrders();
     cleanupUnverifiedUsers();
 
-    // KHỞI ĐỘNG TRÌNH LẮNG NGHE ĐƠN HÀNG MỚI
+    // KHỞI ĐỘNG TRÌNH LẮNG NGHE ĐƠN MỚI
     const bookingsRef = db.ref('dataBookTable');
     console.log("-> Dang lang nghe cac don hang moi de len lich cap nhat...");
     bookingsRef.on('child_added', (snapshot) => {
