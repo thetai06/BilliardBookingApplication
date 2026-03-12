@@ -1,9 +1,7 @@
 // utils/helpers.js
 const moment = require('moment-timezone');
 
-/**
- * Xử lý số điện thoại về định dạng chuẩn +84...
- */
+//Xử lý số điện thoại về định dạng chuẩn +84...
 function formatPhoneNumber(phone) {
     if (!phone) {
         return undefined;
@@ -17,9 +15,7 @@ function formatPhoneNumber(phone) {
     return `+84${phone}`;
 }
 
-/**
- * Sắp xếp các tham số object theo key cho VNPAY.
- */
+// Sắp xếp các tham số object theo key cho VNPAY.
 function sortObject(obj) {
     let sorted = {};
     let str = [];
@@ -35,9 +31,7 @@ function sortObject(obj) {
     return sorted;
 }
 
-/**
- * Hàm chuyển đổi chuỗi ngày và giờ thành đối tượng Date theo múi giờ Việt Nam.
- */
+// Hàm chuyển đổi chuỗi ngày và giờ thành đối tượng Date theo múi giờ Việt Nam.
 function parseDateTime(dateStr, timeStr) {
     if (!dateStr || !timeStr) return null;
 
