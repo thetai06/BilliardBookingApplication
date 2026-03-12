@@ -2,11 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
-const { authenticateToken } = require('../authMiddleware'); // Đảm bảo đường dẫn đúng
+const { authenticateToken } = require('../authMiddleware'); 
 
-// ====================================================================
 // 1. LẤY DANH SÁCH VOUCHER (CHỈ ADMIN/OWNER)
-// ====================================================================
 router.get('/list', authenticateToken, async (req, res) => {
     // Chỉ cho phép Owner xem danh sách voucher
     if (req.user.role !== 'owner') {
@@ -21,7 +19,6 @@ router.get('/list', authenticateToken, async (req, res) => {
             return res.status(200).json({ success: true, message: 'No vouchers found.', data: [] });
         }
 
-        // Chuyển object thành mảng để dễ xử lý ở frontend
         const voucherList = Object.keys(vouchers).map(key => ({
             voucherId: key,
             ...vouchers[key]
@@ -35,9 +32,7 @@ router.get('/list', authenticateToken, async (req, res) => {
     }
 });
 
-// ====================================================================
 // 2. ÁP DỤNG VOUCHER (Frontend gọi khi đặt bàn)
-// ====================================================================
 router.post('/apply', async (req, res) => {
     const { voucherCode, bookingAmount, userId } = req.body;
 
@@ -55,17 +50,10 @@ router.post('/apply', async (req, res) => {
         const voucherKey = Object.keys(snapshot.val())[0];
         const voucher = snapshot.val()[voucherKey];
 
-        // --- BƯỚC XỬ LÝ LOGIC ---
-
         // 1. Kiểm tra ngày hết hạn
         if (new Date(voucher.expiryDate) < new Date()) {
              return res.status(400).json({ success: false, message: 'Voucher đã hết hạn sử dụng.' });
         }
-
-        // 2. Kiểm tra giới hạn sử dụng (nếu cần)
-        // if (voucher.usedCount >= voucher.usageLimit) {
-        //      return res.status(400).json({ success: false, message: 'Voucher đã hết lượt sử dụng.' });
-        // }
 
         // 3. Tính toán giá trị giảm giá
         let discountAmount = 0;
@@ -98,7 +86,5 @@ router.post('/apply', async (req, res) => {
     }
 });
 
-// ====================================================================
 // EXPORT ROUTER
-// ====================================================================
 module.exports = router;
